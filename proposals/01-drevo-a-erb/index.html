@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elinor Marsi — Dřevo a erb</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bark:#241207;
+  --wood:#4a2b16;
+  --wood-light:#6b4226;
+  --gold:#c9a961;
+  --gold-bright:#e9d7a7;
+  --parchment:#f0e6cc;
+  --parchment-deep:#e6d8b4;
+  --ink:#2c1a0e;
+  --forest:#2e4a2b;
+  --shield-red:#7a1f1a;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}}
+body{font-family:'EB Garamond',serif;font-size:1.15rem;line-height:1.65;color:var(--ink);background:var(--parchment)}
+img{max-width:100%;display:block}
+a{color:var(--shield-red)}
+a:focus-visible,button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+/* ============ HERO with baked wooden plank ============ */
+.hero{
+  position:relative;
+  background:url('../../assets/forest-header.jpg') top center/cover no-repeat;
+  min-height:92vh;
+  display:flex;flex-direction:column;
+}
+.hero::after{content:'';position:absolute;inset:auto 0 0 0;height:30%;
+  background:linear-gradient(to bottom,transparent,var(--bark))}
+/* nav links laid over the carved plank of the artwork */
+.plank-nav{position:absolute;top:0;left:0;right:0;height:12.5vw;z-index:5}
+.plank-nav ul{list-style:none;display:flex;gap:2.6vw;padding-top:4.6vw;
+  position:absolute;top:0;width:50%}
+.plank-nav ul.left{left:0;justify-content:flex-end;padding-right:9.5vw}
+.plank-nav ul.right{right:0;justify-content:flex-start;padding-left:9.5vw}
+.plank-nav a{
+  font-family:'Cinzel',serif;font-weight:600;text-decoration:none;
+  color:var(--gold-bright);font-size:1.25vw;letter-spacing:.14em;text-transform:uppercase;
+  text-shadow:0 2px 6px rgba(0,0,0,.8);
+  transition:color .25s, text-shadow .25s;
+}
+.plank-nav a:hover{color:#fff;text-shadow:0 0 14px rgba(233,215,167,.95)}
+.hero-title{
+  margin:auto;text-align:center;padding:26vw 1.5rem 4rem;
+}
+.hero-title h1{
+  font-family:'Cinzel Decorative',serif;font-weight:700;
+  font-size:clamp(2.6rem,6vw,5rem);color:var(--gold-bright);
+  text-shadow:0 3px 14px rgba(0,0,0,.85), 0 0 40px rgba(201,169,97,.4);
+  letter-spacing:.08em;
+}
+.hero-title p{
+  font-family:'Cinzel',serif;color:#f4ecd7;font-size:clamp(1rem,1.9vw,1.4rem);
+  letter-spacing:.22em;text-transform:uppercase;margin-top:1rem;
+  text-shadow:0 2px 8px rgba(0,0,0,.9);
+}
+.hero-cta{margin-top:2.4rem;display:flex;gap:1.2rem;justify-content:center;flex-wrap:wrap}
+.btn{
+  font-family:'Cinzel',serif;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+  font-size:.95rem;text-decoration:none;padding:.95rem 2.1rem;border-radius:4px;
+  border:1px solid var(--gold);cursor:pointer;display:inline-block;
+}
+.btn-gold{
+  background:linear-gradient(180deg,#dfc27e,#a97f35);color:#241207;
+  box-shadow:0 4px 16px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.5);
+}
+.btn-gold:hover{background:linear-gradient(180deg,#ecd398,#bb914a)}
+.btn-ghost{color:var(--gold-bright);background:rgba(36,18,7,.55)}
+.btn-ghost:hover{background:rgba(36,18,7,.85)}
+
+/* sticky slim nav appearing after hero */
+.sticky-nav{
+  position:fixed;top:0;left:0;right:0;z-index:50;transform:translateY(-110%);
+  transition:transform .35s ease;
+  background:linear-gradient(180deg,#3a2010,#241207);
+  border-bottom:2px solid var(--gold);
+  box-shadow:0 4px 18px rgba(0,0,0,.55);
+}
+.sticky-nav.visible{transform:translateY(0)}
+.sticky-nav .inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:1.6rem;padding:.55rem 1.2rem}
+.sticky-nav img{height:2.4rem;width:auto}
+.sticky-nav ul{list-style:none;display:flex;gap:1.4rem;margin-left:auto;flex-wrap:wrap}
+.sticky-nav a{font-family:'Cinzel',serif;font-size:.85rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--gold-bright);text-decoration:none}
+.sticky-nav a:hover{color:#fff}
+
+/* ============ shared section chrome ============ */
+section{padding:5rem 1.5rem}
+.wrap{max-width:1100px;margin:0 auto}
+.section-head{text-align:center;margin-bottom:3rem}
+.section-head h2{
+  font-family:'Cinzel',serif;font-weight:700;font-size:clamp(1.9rem,3.4vw,2.7rem);
+  letter-spacing:.1em;text-transform:uppercase;color:var(--wood);
+}
+.dark .section-head h2{color:var(--gold-bright)}
+.knot{width:190px;height:22px;margin:1rem auto 0;display:block}
+/* wood band sections */
+.dark{
+  background:
+    linear-gradient(rgba(30,15,5,.94),rgba(30,15,5,.94)),
+    url('../../assets/forest-header.jpg') center/cover fixed;
+  color:#e9dfc6;
+}
+.dark a{color:var(--gold-bright)}
+
+/* ============ about ============ */
+.about-grid{display:grid;grid-template-columns:280px 1fr;gap:3rem;align-items:start}
+.about-grid .shield{filter:drop-shadow(0 10px 24px rgba(0,0,0,.35))}
+.about-text p{margin-bottom:1.1rem}
+.about-text .lead{font-size:1.3rem;font-style:italic;color:var(--shield-red)}
+.craft-list{display:grid;grid-template-columns:repeat(3,1fr);gap:1.4rem;margin-top:2.2rem}
+.craft{border:1px solid var(--gold);border-radius:6px;padding:1.3rem;background:var(--parchment-deep)}
+.craft h3{font-family:'Cinzel',serif;font-size:1.02rem;letter-spacing:.08em;color:var(--wood);margin-bottom:.5rem}
+.craft p{font-size:1rem;margin:0}
+
+/* ============ concerts ============ */
+.concerts table{width:100%;border-collapse:collapse}
+.concerts th{font-family:'Cinzel',serif;font-size:.85rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--gold);text-align:left;padding:.7rem .9rem;border-bottom:1px solid rgba(201,169,97,.4)}
+.concerts td{padding:1.05rem .9rem;border-bottom:1px solid rgba(201,169,97,.18);vertical-align:middle}
+.concerts .date{font-family:'Cinzel',serif;font-weight:600;color:var(--gold-bright);white-space:nowrap}
+.concerts .btn{padding:.5rem 1.2rem;font-size:.78rem}
+.sample-note{margin-top:1.2rem;font-size:.92rem;font-style:italic;opacity:.65;text-align:center}
+
+/* ============ music & videos ============ */
+.video-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.8rem}
+.video-card{background:var(--parchment-deep);border:1px solid var(--gold);border-radius:6px;overflow:hidden;
+  box-shadow:0 6px 18px rgba(44,26,14,.18)}
+.dark .video-card{background:#170b04;box-shadow:0 8px 22px rgba(0,0,0,.5)}
+.video-thumb{position:relative;aspect-ratio:16/9;cursor:pointer;border:none;padding:0;width:100%;display:block;background:#000}
+.video-thumb img{width:100%;height:100%;object-fit:cover;opacity:.92;transition:opacity .25s,transform .4s}
+.video-thumb:hover img{opacity:1;transform:scale(1.03)}
+.video-thumb .play{
+  position:absolute;inset:0;margin:auto;width:72px;height:72px;border-radius:50%;
+  background:rgba(36,18,7,.75);border:2px solid var(--gold);
+  display:flex;align-items:center;justify-content:center;transition:background .25s;
+}
+.video-thumb:hover .play{background:rgba(122,31,26,.9)}
+.video-thumb .play::after{content:'';border-style:solid;border-width:13px 0 13px 22px;
+  border-color:transparent transparent transparent var(--gold-bright);margin-left:5px}
+.video-card iframe{width:100%;aspect-ratio:16/9;border:0;display:block}
+.video-card h3{font-family:'Cinzel',serif;font-size:1.02rem;font-weight:600;padding:1rem 1.1rem .35rem;color:inherit}
+.video-card p{font-size:.95rem;opacity:.75;padding:0 1.1rem 1.1rem}
+.music-feature{display:grid;grid-template-columns:1.15fr .85fr;gap:2.6rem;align-items:center;margin-bottom:3.4rem}
+.music-feature h3{font-family:'Cinzel Decorative',serif;font-size:1.7rem;color:var(--gold-bright);margin-bottom:1rem}
+.music-feature p{margin-bottom:1.4rem}
+
+/* ============ gallery ============ */
+.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));grid-auto-rows:210px;gap:1rem}
+.gallery figure{overflow:hidden;border-radius:5px;border:1px solid rgba(201,169,97,.55);margin:0;position:relative}
+.gallery img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
+.gallery figure:hover img{transform:scale(1.06)}
+.gallery figcaption{
+  position:absolute;left:0;right:0;bottom:0;padding:1.8rem .8rem .55rem;
+  background:linear-gradient(transparent,rgba(36,18,7,.9));
+  font-family:'Cinzel',serif;font-size:.82rem;letter-spacing:.08em;color:var(--gold-bright);
+}
+.gallery .wide{grid-column:span 2}
+
+/* ============ rider ============ */
+.rider-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1.4rem;margin-bottom:2.4rem}
+.rider-item{border-left:3px solid var(--gold);padding:.2rem 0 .2rem 1.1rem}
+.rider-item h3{font-family:'Cinzel',serif;font-size:1rem;letter-spacing:.06em;margin-bottom:.35rem;color:var(--gold-bright)}
+.rider-item p{font-size:.98rem;opacity:.85;margin:0}
+.rider-actions{text-align:center}
+
+/* ============ contact & footer ============ */
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem}
+.contact-block h3{font-family:'Cinzel',serif;font-size:1.05rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--wood);margin-bottom:.8rem}
+.contact-block p{margin-bottom:.5rem}
+.socials{display:flex;gap:1rem;margin-top:1.2rem}
+.socials a{
+  width:52px;height:52px;border-radius:50%;border:1.5px solid var(--gold);
+  display:flex;align-items:center;justify-content:center;text-decoration:none;
+  background:var(--parchment-deep);transition:background .25s;
+}
+.socials a:hover{background:var(--gold)}
+.socials svg{width:24px;height:24px;fill:var(--wood)}
+footer{
+  background:linear-gradient(180deg,#2f1a0b,#1a0d04);color:#cbb98d;
+  text-align:center;padding:2.6rem 1.5rem;border-top:3px solid var(--gold);
+}
+footer img{height:3.2rem;width:auto;margin:0 auto 1rem}
+footer p{font-size:.92rem}
+
+@media(max-width:900px){
+  .plank-nav{display:none}
+  .mobile-bar{display:flex!important}
+  .hero{min-height:74vh;background-size:auto 175%;background-position:42% 62%}
+  .hero-title{padding-top:9rem}
+  .about-grid,.music-feature,.contact-grid{grid-template-columns:1fr}
+  .about-grid .shield{max-width:220px;margin:0 auto}
+  .craft-list{grid-template-columns:1fr}
+  .gallery .wide{grid-column:span 1}
+}
+.mobile-bar{
+  display:none;position:absolute;top:0;left:0;right:0;z-index:6;
+  background:linear-gradient(180deg,#3a2010,#241207ee);
+  align-items:center;gap:1rem;padding:.6rem 1rem;border-bottom:2px solid var(--gold);
+}
+.mobile-bar img{height:2.2rem;width:auto}
+.mobile-bar nav{margin-left:auto}
+.mobile-bar a{font-family:'Cinzel',serif;color:var(--gold-bright);text-decoration:none;font-size:.78rem;
+  letter-spacing:.08em;text-transform:uppercase;margin-left:.7rem}
+</style>
+</head>
+<body>
+
+<!-- sticky nav shown after scrolling past hero -->
+<div class="sticky-nav" id="stickyNav">
+  <div class="inner">
+    <img src="../../assets/wordmark-gold.png" alt="Elinor">
+    <ul>
+      <li><a href="#o-elinor">O Elinor</a></li>
+      <li><a href="#koncerty">Koncerty</a></li>
+      <li><a href="#hudba">Hudba</a></li>
+      <li><a href="#videa">Videa</a></li>
+      <li><a href="#galerie">Galerie</a></li>
+      <li><a href="#rider">Rider</a></li>
+      <li><a href="#kontakt">Kontakt</a></li>
+    </ul>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="mobile-bar">
+    <img src="../../assets/wordmark-gold.png" alt="Elinor">
+    <nav>
+      <a href="#koncerty">Koncerty</a>
+      <a href="#hudba">Hudba</a>
+      <a href="#kontakt">Kontakt</a>
+    </nav>
+  </div>
+  <nav class="plank-nav" aria-label="Hlavní navigace">
+    <ul class="left">
+      <li><a href="#o-elinor">O Elinor</a></li>
+      <li><a href="#koncerty">Koncerty</a></li>
+      <li><a href="#hudba">Hudba</a></li>
+      <li><a href="#videa">Videa</a></li>
+    </ul>
+    <ul class="right">
+      <li><a href="#galerie">Galerie</a></li>
+      <li><a href="#rider">Rider</a></li>
+      <li><a href="#kontakt">Kontakt</a></li>
+    </ul>
+  </nav>
+  <div class="hero-title">
+    <h1>Elinor Marsi</h1>
+    <p>Písně o vnitřní síle, přírodě a odvaze žít naplno</p>
+    <div class="hero-cta">
+      <a class="btn btn-gold" href="#hudba">Poslechnout hudbu</a>
+      <a class="btn btn-ghost" href="#koncerty">Nejbližší koncerty</a>
+    </div>
+  </div>
+</header>
+
+<!-- ============ O ELINOR ============ -->
+<section id="o-elinor">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>O Elinor</h2>
+      <svg class="knot" viewBox="0 0 190 22" aria-hidden="true"><path d="M5 11h60m60 0h60M75 11c5-9 10-9 15 0s10 9 15 0 10-9 15 0" stroke="#c9a961" stroke-width="1.6" fill="none"/><circle cx="95" cy="11" r="3" fill="#7a1f1a"/></svg>
+    </div>
+    <div class="about-grid">
+      <img class="shield" src="../../assets/shield.png" alt="Erb Elinor — keltský strom života">
+      <div class="about-text">
+        <p class="lead">Bylo nebylo, za devatero horami a devatero řekami, v jednom malém moravském království se narodila princezna Elinor…</p>
+        <p>Elinor Marsi je zpěvačka a skladatelka, jejíž písně vyrůstají z lásky k přírodě, keltské a indiánské inspirace
+        a z cesty osobního rozvoje. První písně skládala už ve čtyřech letech, vyrostla na muzikálové a klasické hudbě
+        a dnes tvoří pop s příměsí žánrů podle aktuální nálady — vždy s poselstvím, že štěstí je volba.</p>
+        <p>Na pódiu ji doprovází kapela; společně přinášejí publiku energii, něhu i příběhy, které se dotýkají duše.</p>
+        <div class="craft-list">
+          <div class="craft">
+            <h3>Sochařství</h3>
+            <p>Vlastní technika ručně zpracovaného umělého pískovce — erby, sochy a ornamenty na <a href="https://www.sochaz.cz">sochaz.cz</a>.</p>
+          </div>
+          <div class="craft">
+            <h3>Psaní</h3>
+            <p>Autorka mystické knihy <em>Osudné jezero</em>; připravuje veršovaný román <em>Srdce s hříchem v erbu</em>.</p>
+          </div>
+          <div class="craft">
+            <h3>Historinor</h3>
+            <p>Vlastní módní styl spojující krásu renesanční módy s praktičností té moderní.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ KONCERTY ============ -->
+<section id="koncerty" class="dark concerts">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Koncerty</h2>
+      <svg class="knot" viewBox="0 0 190 22" aria-hidden="true"><path d="M5 11h60m60 0h60M75 11c5-9 10-9 15 0s10 9 15 0 10-9 15 0" stroke="#c9a961" stroke-width="1.6" fill="none"/><circle cx="95" cy="11" r="3" fill="#c9a961"/></svg>
+    </div>
+    <table>
+      <thead><tr><th>Datum</th><th>Město</th><th>Místo</th><th></th></tr></thead>
+      <tbody>
+        <tr><td class="date">15. 8. 2026</td><td>Kladno</td><td>Letní scéna</td><td><a class="btn btn-gold" href="#kontakt">Vstupenky</a></td></tr>
+        <tr><td class="date">5. 9. 2026</td><td>Praha</td><td>Festival Sabor Latino, Náměstí Republiky</td><td><a class="btn btn-gold" href="#kontakt">Vstupenky</a></td></tr>
+        <tr><td class="date">26. 9. 2026</td><td>Libušín</td><td>Středověký festival</td><td><a class="btn btn-gold" href="#kontakt">Vstupenky</a></td></tr>
+      </tbody>
+    </table>
+    <p class="sample-note">Ukázkové termíny — na ostrém webu je nahradí skutečný kalendář koncertů.</p>
+  </div>
+</section>
+
+<!-- ============ HUDBA ============ -->
+<section id="hudba">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Hudba</h2>
+      <svg class="knot" viewBox="0 0 190 22" aria-hidden="true"><path d="M5 11h60m60 0h60M75 11c5-9 10-9 15 0s10 9 15 0 10-9 15 0" stroke="#c9a961" stroke-width="1.6" fill="none"/><circle cx="95" cy="11" r="3" fill="#7a1f1a"/></svg>
+    </div>
+    <div class="video-grid">
+      <div class="video-card">
+        <button class="video-thumb" data-yt="F5k74o3kri0" aria-label="Přehrát: Změním svět, když začnu v sobě">
+          <img src="https://i.ytimg.com/vi/F5k74o3kri0/hqdefault.jpg" alt="" loading="lazy"><span class="play"></span>
+        </button>
+        <h3>Změním svět, když začnu v sobě</h3>
+        <p>Oficiální videoklip · nový singl 2026</p>
+      </div>
+      <div class="video-card">
+        <button class="video-thumb" data-yt="vDQuqQasoi4" aria-label="Přehrát: Jestřáb">
+          <img src="https://i.ytimg.com/vi/vDQuqQasoi4/hqdefault.jpg" alt="" loading="lazy"><span class="play"></span>
+        </button>
+        <h3>Jestřáb</h3>
+        <p>Oficiální videoklip</p>
+      </div>
+      <div class="video-card">
+        <button class="video-thumb" data-yt="DeEg2q61gq8" aria-label="Přehrát: Vděčnost">
+          <img src="https://i.ytimg.com/vi/DeEg2q61gq8/hqdefault.jpg" alt="" loading="lazy"><span class="play"></span>
+        </button>
+        <h3>Vděčnost</h3>
+        <p>Oficiální živý záznam</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ VIDEA ============ -->
+<section id="videa" class="dark">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Videa</h2>
+      <svg class="knot" viewBox="0 0 190 22" aria-hidden="true"><path d="M5 11h60m60 0h60M75 11c5-9 10-9 15 0s10 9 15 0 10-9 15 0" stroke="#c9a961" stroke-width="1.6" fill="none"/><circle cx="95" cy="11" r="3" fill="#c9a961"/></svg>
+    </div>
+    <div class="video-grid">
+      <div class="video-card">
+        <button class="video-thumb" data-yt="mAs0Px_Tv-U" aria-label="Přehrát: Kurandera Song">
+          <img src="https://i.ytimg.com/vi/mAs0Px_Tv-U/hqdefault.jpg" alt="" loading="lazy"><span class="play"></span>
+        </button>
+        <h3>Nejlepší verze sebe sama · Kurandera Song</h3>
+        <p>Oficiální živý záznam</p>
+      </div>
+      <div class="video-card">
+        <button class="video-thumb" data-yt="AsKpYsBjtmk" aria-label="Přehrát: Středověký festival v Libušíně">
+          <img src="https://i.ytimg.com/vi/AsKpYsBjtmk/hqdefault.jpg" alt="" loading="lazy"><span class="play"></span>
+        </button>
+        <h3>Středověký festival v Libušíně</h3>
+        <p>Momentky z vystoupení</p>
+      </div>
+      <div class="video-card">
+        <button class="video-thumb" data-yt="TBjRIsDguQI" aria-label="Přehrát: Photograph — svatební cover">
+          <img src="https://i.ytimg.com/vi/TBjRIsDguQI/hqdefault.jpg" alt="" loading="lazy"><span class="play"></span>
+        </button>
+        <h3>Photograph <span style="opacity:.7">(Ed Sheeran)</span></h3>
+        <p>Živý svatební cover s improvizovanou kapelou</p>
+      </div>
+    </div>
+    <p style="text-align:center;margin-top:2.4rem">
+      <a class="btn btn-ghost" href="https://www.youtube.com/@ElinorMarsiMusic">Všechna videa na YouTube</a>
+    </p>
+  </div>
+</section>
+
+<!-- ============ GALERIE ============ -->
+<section id="galerie">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Galerie</h2>
+      <svg class="knot" viewBox="0 0 190 22" aria-hidden="true"><path d="M5 11h60m60 0h60M75 11c5-9 10-9 15 0s10 9 15 0 10-9 15 0" stroke="#c9a961" stroke-width="1.6" fill="none"/><circle cx="95" cy="11" r="3" fill="#7a1f1a"/></svg>
+    </div>
+    <div class="gallery">
+      <figure class="wide"><img src="https://i.ytimg.com/vi/iv5GyfOSFp4/maxresdefault.jpg" style="object-position:63% 20%" alt="Elinor Marsi — Moře vzpomínek, v lese" loading="lazy"><figcaption>Moře vzpomínek</figcaption></figure>
+      <figure><img src="https://i.ytimg.com/vi/tOJcNhLHxTM/maxresdefault.jpg" style="object-position:30% 25%" alt="Elinor Marsi — Létám, vílí křídla" loading="lazy"><figcaption>Létám</figcaption></figure>
+      <figure><img src="https://i.ytimg.com/vi/Mdi5pp9udRA/maxresdefault.jpg" style="object-position:92% 40%" alt="Elinor Marsi — Svoboda, renesanční šaty" loading="lazy"><figcaption>Svoboda</figcaption></figure>
+      <figure><img src="../../assets/castle.jpg" alt="Ilustrace hradu — svět Elinor" loading="lazy"><figcaption>Svět Elinor</figcaption></figure>
+      <figure class="wide"><img src="https://i.ytimg.com/vi/vDQuqQasoi4/maxresdefault.jpg" style="object-position:12% 30%" alt="Elinor Marsi — z natáčení klipu Jestřáb" loading="lazy"><figcaption>z klipu Jestřáb</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RIDER ============ -->
+<section id="rider" class="dark">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Technický rider</h2>
+      <svg class="knot" viewBox="0 0 190 22" aria-hidden="true"><path d="M5 11h60m60 0h60M75 11c5-9 10-9 15 0s10 9 15 0 10-9 15 0" stroke="#c9a961" stroke-width="1.6" fill="none"/><circle cx="95" cy="11" r="3" fill="#c9a961"/></svg>
+    </div>
+    <div class="rider-grid">
+      <div class="rider-item"><h3>Obsazení</h3><p>Zpěv + doprovodná kapela; varianta sólo/duo na vyžádání.</p></div>
+      <div class="rider-item"><h3>Zvuk</h3><p>Kompletní požadavky na PA, monitory a mikrofonní vstupy v dokumentu.</p></div>
+      <div class="rider-item"><h3>Stage plot</h3><p>Rozmístění na pódiu včetně zapojení a rozměrů.</p></div>
+      <div class="rider-item"><h3>Světla &amp; zázemí</h3><p>Světelné nálady k písním a požadavky na šatnu.</p></div>
+    </div>
+    <div class="rider-actions">
+      <a class="btn btn-gold" href="#" aria-disabled="true">Stáhnout rider (PDF)</a>
+      <p class="sample-note">Dokument bude doplněn — tlačítko je připraveno.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ KONTAKT ============ -->
+<section id="kontakt">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Kontakt</h2>
+      <svg class="knot" viewBox="0 0 190 22" aria-hidden="true"><path d="M5 11h60m60 0h60M75 11c5-9 10-9 15 0s10 9 15 0 10-9 15 0" stroke="#c9a961" stroke-width="1.6" fill="none"/><circle cx="95" cy="11" r="3" fill="#7a1f1a"/></svg>
+    </div>
+    <div class="contact-grid">
+      <div class="contact-block">
+        <h3>Booking &amp; management</h3>
+        <p><a href="mailto:booking@elinormarsi.com">booking@elinormarsi.com</a></p>
+        <p>Koncerty, festivaly, svatby i soukromé akce.</p>
+        <div class="socials">
+          <a href="https://www.youtube.com/@ElinorMarsiMusic" aria-label="YouTube"><svg viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.5 15.5v-7l6.5 3.5z"/></svg></a>
+          <a href="https://www.facebook.com/ElinorMarsiMusic/" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M24 12a12 12 0 1 0-13.9 11.9v-8.4h-3V12h3V9.4c0-3 1.8-4.7 4.6-4.7 1.3 0 2.7.2 2.7.2v3h-1.5c-1.5 0-2 .9-2 1.9V12h3.4l-.5 3.5h-2.9v8.4A12 12 0 0 0 24 12z"/></svg></a>
+          <a href="https://www.instagram.com/elinor_marsi/" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1 .4 2.2.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.2 1.8-.4 2.2a3.8 3.8 0 0 1-.9 1.4c-.4.4-.8.7-1.4.9-.4.2-1 .4-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.8-.2-2.2-.4a3.8 3.8 0 0 1-1.4-.9 3.8 3.8 0 0 1-.9-1.4c-.2-.4-.4-1-.4-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.9c.1-1.2.2-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.4 2.2-.4C8.4 2.2 8.8 2.2 12 2.2zm0 2A9.8 9.8 0 0 0 12 4.2zm0 1.6a6.2 6.2 0 1 0 0 12.4 6.2 6.2 0 0 0 0-12.4zm0 10.2a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.4-10.4a1.4 1.4 0 1 1-2.9 0 1.4 1.4 0 0 1 2.9 0z"/></svg></a>
+        </div>
+      </div>
+      <div class="contact-block">
+        <h3>Novinky e-mailem</h3>
+        <p>Nové písně a termíny koncertů jednou za čas do vaší schránky.</p>
+        <form onsubmit="event.preventDefault();this.querySelector('p.ok').style.display='block'">
+          <input type="email" required placeholder="váš e-mail" style="width:70%;padding:.8rem;border:1px solid var(--gold);border-radius:4px;background:#fff;font-family:inherit;font-size:1rem">
+          <button class="btn btn-gold" type="submit" style="padding:.72rem 1.4rem">Odebírat</button>
+          <p class="ok" style="display:none;margin-top:.6rem;color:var(--forest)">Děkujeme! (ukázka — na ostrém webu propojíme s mailing službou)</p>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <img src="../../assets/wordmark-gold.png" alt="Elinor">
+  <p>© 2026 Elinor Marsi · Hudba, která léčí duši · <a href="#kontakt" style="color:#cbb98d">Kontakt</a></p>
+</footer>
+
+<script>
+// sticky nav after hero
+const hero=document.querySelector('.hero'),nav=document.getElementById('stickyNav');
+new IntersectionObserver(([e])=>nav.classList.toggle('visible',!e.isIntersecting),{threshold:0}).observe(hero);
+// click-to-load YouTube embeds
+document.querySelectorAll('.video-thumb').forEach(b=>{
+  b.addEventListener('click',()=>{
+    const f=document.createElement('iframe');
+    f.src='https://www.youtube.com/embed/'+b.dataset.yt+'?autoplay=1';
+    f.allow='autoplay; encrypted-media; picture-in-picture';
+    f.allowFullscreen=true;
+    b.replaceWith(f);
+  });
+});
+</script>
+</body>
+</html>

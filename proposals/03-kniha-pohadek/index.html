@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elinor Marsi — Kniha pohádek</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Uncial+Antiqua&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --desk:#241206;
+  --desk-hi:#3a2210;
+  --parchment:#efe3c3;
+  --parchment-hi:#f7efd8;
+  --ink:#33230f;
+  --gold:#b8892f;
+  --seal:#8e2f21;
+  --forest:#40573c;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}}
+body{
+  font-family:'IM Fell English',serif;font-size:1.22rem;line-height:1.7;color:var(--ink);
+  /* the wooden desk the book lies on */
+  background:
+    repeating-linear-gradient(88deg,rgba(0,0,0,.22) 0 6px,transparent 6px 26px),
+    repeating-linear-gradient(2deg,rgba(255,255,255,.025) 0 2px,transparent 2px 14px),
+    linear-gradient(160deg,var(--desk-hi),var(--desk) 60%);
+  background-attachment:fixed;
+}
+img{max-width:100%;display:block}
+a{color:var(--seal)}
+a:focus-visible,button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+/* ============ the book page ============ */
+.book{
+  max-width:940px;margin:5.5rem auto 6rem;position:relative;
+  background:
+    radial-gradient(ellipse at 20% 8%, rgba(184,137,47,.10), transparent 46%),
+    radial-gradient(ellipse at 85% 95%, rgba(142,47,33,.06), transparent 40%),
+    linear-gradient(180deg,var(--parchment-hi),var(--parchment) 18%);
+  box-shadow:0 30px 80px rgba(0,0,0,.75), 0 4px 18px rgba(0,0,0,.5);
+}
+/* deckled page edge */
+.book::before{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:3;
+  box-shadow:inset 0 0 0 1px rgba(51,35,15,.25), inset 0 0 60px rgba(120,84,30,.18);
+}
+.page{padding:5rem 6.5rem}
+@media(max-width:760px){
+  .book{margin:4.5rem .7rem}
+  .page{padding:3rem 1.6rem}
+}
+
+/* ============ nav ribbon ============ */
+nav.ribbon{
+  position:fixed;top:0;left:0;right:0;z-index:40;
+  background:linear-gradient(180deg,#411f14,var(--seal) 45%,#5f1d13);
+  border-bottom:2px solid var(--gold);
+  box-shadow:0 4px 16px rgba(0,0,0,.6);
+}
+nav.ribbon ul{list-style:none;display:flex;justify-content:center;gap:2.1rem;padding:.75rem 1rem;flex-wrap:wrap}
+nav.ribbon a{
+  font-family:'Cinzel',serif;font-size:.82rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+  color:#f3e2b8;text-decoration:none;
+}
+nav.ribbon a:hover{color:#fff;text-shadow:0 0 10px rgba(243,226,184,.8)}
+
+/* ============ title page ============ */
+.title-page{text-align:center;padding-top:6.5rem}
+.title-page .shield{width:190px;margin:0 auto 2rem;filter:drop-shadow(0 8px 18px rgba(51,35,15,.4))}
+.title-page .over{font-family:'IM Fell English SC',serif;font-size:1.15rem;letter-spacing:.34em;color:var(--forest)}
+.title-page h1{
+  font-family:'IM Fell English SC',serif;font-weight:400;
+  font-size:clamp(3rem,8vw,5.2rem);line-height:1.05;color:var(--ink);margin:.8rem 0 .4rem;
+}
+.title-page .tag{font-style:italic;font-size:1.35rem;color:#5c4322}
+.rule{display:block;margin:2.2rem auto;width:270px;height:30px}
+.rule path{fill:none;stroke:var(--gold);stroke-width:1.5}
+.rule circle{fill:var(--seal)}
+.title-cta{display:flex;gap:1.3rem;justify-content:center;flex-wrap:wrap;margin-top:.6rem}
+.seal-btn{
+  font-family:'Cinzel',serif;font-weight:600;font-size:.9rem;letter-spacing:.12em;text-transform:uppercase;
+  text-decoration:none;color:#f7ead0;background:radial-gradient(circle at 35% 30%,#b04434,var(--seal) 65%,#5f1d13);
+  padding:1rem 2.2rem;border-radius:50px;border:1px solid #5f1d13;
+  box-shadow:0 5px 14px rgba(95,29,19,.45), inset 0 2px 3px rgba(255,255,255,.25), inset 0 -3px 6px rgba(0,0,0,.35);
+}
+.seal-btn:hover{filter:brightness(1.12)}
+.seal-btn.quill{background:linear-gradient(180deg,#efe3c3,#ddcba0);color:var(--ink);border:1px solid var(--gold);box-shadow:0 4px 12px rgba(51,35,15,.25)}
+
+/* ============ chapters ============ */
+.chapter{padding-top:4.6rem}
+.chapter-head{text-align:center;margin-bottom:2.6rem}
+.chapter-head .num{font-family:'IM Fell English SC',serif;letter-spacing:.4em;font-size:1rem;color:var(--seal)}
+.chapter-head h2{
+  font-family:'IM Fell English SC',serif;font-weight:400;font-size:clamp(2rem,4.6vw,2.9rem);color:var(--ink);
+}
+/* illuminated drop cap */
+.dropcap::first-letter{
+  font-family:'Uncial Antiqua',serif;float:left;
+  font-size:4.6em;line-height:.78;padding:.08em .12em 0 0;color:var(--seal);
+  text-shadow:1px 1px 0 var(--gold);
+}
+.chapter p{margin-bottom:1.15rem}
+.marginal{
+  border-left:3px double var(--gold);padding:.4rem 0 .4rem 1.2rem;margin:1.8rem 0;
+  font-style:italic;color:#5c4322;
+}
+.crafts{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:2rem}
+.craft{border:1px solid rgba(184,137,47,.55);padding:1.2rem;background:rgba(247,239,216,.6)}
+.craft h3{font-family:'IM Fell English SC',serif;font-weight:400;font-size:1.15rem;color:var(--seal);margin-bottom:.4rem}
+.craft p{font-size:1.02rem;margin:0}
+@media(max-width:760px){.crafts{grid-template-columns:1fr}}
+
+/* framed plate (castle illustration) */
+.plate{margin:2.6rem auto 0;text-align:center}
+.plate .frame{
+  display:inline-block;padding:12px;background:linear-gradient(145deg,#4a2b16,#2e1a0c);
+  border:1px solid var(--gold);box-shadow:0 10px 26px rgba(51,35,15,.4);
+}
+.plate img{border:1px solid rgba(184,137,47,.7)}
+.plate figcaption{font-style:italic;font-size:1rem;color:#5c4322;margin-top:.8rem}
+
+/* concerts as charter entries */
+.charter{list-style:none}
+.charter li{
+  display:flex;gap:1.6rem;align-items:baseline;flex-wrap:wrap;
+  padding:1.25rem .4rem;border-bottom:1px dashed rgba(51,35,15,.35);
+}
+.charter .date{font-family:'IM Fell English SC',serif;font-size:1.25rem;color:var(--seal);min-width:8.6rem}
+.charter .place h3{font-size:1.3rem;font-weight:400}
+.charter .place p{font-size:1.02rem;font-style:italic;color:#5c4322;margin:0}
+.charter .seal-btn{margin-left:auto;padding:.55rem 1.3rem;font-size:.74rem;align-self:center}
+.sample-note{font-size:.98rem;font-style:italic;color:#5c4322;opacity:.8;margin-top:1.1rem;text-align:center}
+
+/* music — illuminated song plates */
+.songs{display:grid;grid-template-columns:1fr 1fr;gap:1.8rem}
+.song{border:1px solid rgba(184,137,47,.55);background:rgba(247,239,216,.65);overflow:hidden}
+.video-thumb{position:relative;aspect-ratio:16/9;cursor:pointer;border:0;padding:0;width:100%;display:block;background:#000}
+.video-thumb img{width:100%;height:100%;object-fit:cover;filter:sepia(.22) saturate(.95);transition:filter .35s}
+.video-thumb:hover img{filter:none}
+.video-thumb .play{
+  position:absolute;inset:0;margin:auto;width:64px;height:64px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#b04434,var(--seal) 70%);
+  border:1.5px solid var(--gold);display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 12px rgba(0,0,0,.45);
+}
+.video-thumb .play::after{content:'';border-style:solid;border-width:11px 0 11px 18px;
+  border-color:transparent transparent transparent #f7ead0;margin-left:4px}
+.song iframe{width:100%;aspect-ratio:16/9;border:0;display:block}
+.song h3{font-family:'IM Fell English SC',serif;font-weight:400;font-size:1.25rem;padding:.9rem 1rem .1rem}
+.song p{font-size:1rem;font-style:italic;color:#5c4322;padding:0 1rem .9rem;margin:0}
+@media(max-width:760px){.songs{grid-template-columns:1fr}}
+
+/* gallery — tipped-in photographs */
+.album{display:flex;flex-wrap:wrap;gap:2rem;justify-content:center}
+.album figure{
+  background:#fbf6e7;padding:12px 12px 2.6rem;box-shadow:0 8px 22px rgba(51,35,15,.35);
+  transform:rotate(-2.2deg);transition:transform .35s;margin:0;max-width:300px;position:relative;
+}
+.album figure:nth-child(2n){transform:rotate(1.8deg)}
+.album figure:nth-child(3n){transform:rotate(-1deg)}
+.album figure:hover{transform:rotate(0) scale(1.04);z-index:2}
+.album img{width:100%;aspect-ratio:4/3;object-fit:cover}
+.album figcaption{
+  position:absolute;bottom:.6rem;left:0;right:0;text-align:center;
+  font-style:italic;font-size:.98rem;color:#5c4322;
+}
+
+/* rider */
+.rider-list{columns:2;column-gap:3rem;margin-bottom:2rem}
+.rider-list li{break-inside:avoid;margin:0 0 1.1rem 1.2rem}
+.rider-list li::marker{content:'❧  ';color:var(--seal)}
+@media(max-width:760px){.rider-list{columns:1}}
+.center{text-align:center}
+
+/* contact */
+.contact-cols{display:grid;grid-template-columns:1fr 1fr;gap:2.6rem;margin-top:1.4rem}
+.contact-cols h3{font-family:'IM Fell English SC',serif;font-weight:400;font-size:1.3rem;color:var(--seal);margin-bottom:.6rem}
+.socials{display:flex;gap:1rem;margin-top:1.1rem}
+.socials a{
+  width:50px;height:50px;border-radius:50%;border:1.5px solid var(--gold);
+  display:flex;align-items:center;justify-content:center;background:rgba(247,239,216,.7);transition:background .25s;
+}
+.socials a:hover{background:var(--gold)}
+.socials svg{width:22px;height:22px;fill:var(--ink)}
+@media(max-width:760px){.contact-cols{grid-template-columns:1fr}}
+
+/* colophon */
+.colophon{
+  text-align:center;padding:3.4rem 1rem 0;margin-top:3rem;border-top:1px solid rgba(184,137,47,.5);
+}
+.colophon img{height:3rem;width:auto;margin:0 auto 1rem}
+.colophon p{font-style:italic;font-size:1rem;color:#5c4322}
+</style>
+</head>
+<body>
+
+<nav class="ribbon" aria-label="Hlavní navigace">
+  <ul>
+    <li><a href="#pribeh">Příběh</a></li>
+    <li><a href="#koncerty">Koncerty</a></li>
+    <li><a href="#pisne">Písně</a></li>
+    <li><a href="#obrazy">Obrazy</a></li>
+    <li><a href="#rider">Rider</a></li>
+    <li><a href="#kontakt">Kontakt</a></li>
+  </ul>
+</nav>
+
+<div class="book">
+  <div class="page">
+
+    <!-- ============ TITLE PAGE ============ -->
+    <header class="title-page">
+      <img class="shield" src="../../assets/shield.png" alt="Erb Elinor — keltský strom života">
+      <p class="over">Zpěvačka · skladatelka · vypravěčka</p>
+      <h1>Elinor Marsi</h1>
+      <p class="tag">Kniha písní o vnitřní síle, přírodě a odvaze žít naplno</p>
+      <svg class="rule" viewBox="0 0 270 30" aria-hidden="true"><path d="M6 15h95c10-16 18-16 28 0 10 16 18 16 28 0h107"/><circle cx="135" cy="15" r="3.2"/></svg>
+      <div class="title-cta">
+        <a class="seal-btn" href="#pisne">Poslechnout písně</a>
+        <a class="seal-btn quill" href="#koncerty">Kalendář koncertů</a>
+      </div>
+    </header>
+
+    <!-- ============ KAPITOLA I ============ -->
+    <section class="chapter" id="pribeh">
+      <div class="chapter-head">
+        <p class="num">Kapitola první</p>
+        <h2>O princezně Elinor</h2>
+      </div>
+      <p class="dropcap">Bylo nebylo, za devatero horami a devatero řekami, v jednom malém moravském
+      království se narodila princezna Elinor. Od čtyř let zpívala a skládala své první písničky;
+      hudbu a text ke své první kompletní skladbě <em>Tenkrát</em> složila v jedenácti letech.
+      Zpívala v každé volné chvíli — mezi studiem a psaním své první mystické knihy
+      <em>Osudné jezero</em>, kterou dokončila v patnácti.</p>
+      <p>Vyrostla na muzikálové a klasické hudbě, prošla několika královskými kapelami a nakonec
+      zakotvila v popu s příměsí žánrů podle aktuální nálady. Její písně vyprávějí o vděčnosti,
+      vnitřní síle a o tom, že štěstí je volba — a čerpají z přírody, keltských
+      a indiánských inspirací.</p>
+      <p class="marginal">„Změním svět, když začnu v sobě.“ — z nového singlu</p>
+      <p>Dnes stojí na pódiu s kapelou a se svým publikem sdílí příběhy, které se dotýkají duše.
+      A protože každá správná princezna umí víc řemesel než jedno:</p>
+      <div class="crafts">
+        <div class="craft"><h3>Sochařství</h3><p>Vlastní technika ručně zpracovaného umělého pískovce — erby a sochy na <a href="https://www.sochaz.cz">sochaz.cz</a>.</p></div>
+        <div class="craft"><h3>Psaní</h3><p>Připravuje veršovaný román <em>Srdce s hříchem v erbu</em> o duševním rozvoji.</p></div>
+        <div class="craft"><h3>Historinor</h3><p>Vlastní módní styl spojující renesanční krásu s moderní praktičností.</p></div>
+      </div>
+      <figure class="plate">
+        <span class="frame"><img src="../../assets/castle.jpg" alt="Hrad v horách — ilustrace ze světa Elinor" width="720"></span>
+        <figcaption>Království Elinor — ilustrace ze schválených návrhů</figcaption>
+      </figure>
+    </section>
+
+    <!-- ============ KAPITOLA II ============ -->
+    <section class="chapter" id="koncerty">
+      <div class="chapter-head">
+        <p class="num">Kapitola druhá</p>
+        <h2>Kde příběh pokračuje</h2>
+      </div>
+      <ul class="charter">
+        <li>
+          <span class="date">15. srpna 2026</span>
+          <div class="place"><h3>Letní scéna, Kladno</h3><p>celovečerní koncert s kapelou</p></div>
+          <a class="seal-btn" href="#kontakt">Vstupenky</a>
+        </li>
+        <li>
+          <span class="date">5. září 2026</span>
+          <div class="place"><h3>Festival Sabor Latino, Praha</h3><p>Náměstí Republiky · open air</p></div>
+          <a class="seal-btn" href="#kontakt">Vstupenky</a>
+        </li>
+        <li>
+          <span class="date">26. září 2026</span>
+          <div class="place"><h3>Středověký festival, Libušín</h3><p>akustické vystoupení v dobovém kostýmu</p></div>
+          <a class="seal-btn" href="#kontakt">Vstupenky</a>
+        </li>
+      </ul>
+      <p class="sample-note">Ukázkové termíny — na ostrém webu je nahradí skutečný kalendář.</p>
+    </section>
+
+    <!-- ============ KAPITOLA III ============ -->
+    <section class="chapter" id="pisne">
+      <div class="chapter-head">
+        <p class="num">Kapitola třetí</p>
+        <h2>Písně</h2>
+      </div>
+      <div class="songs">
+        <div class="song">
+          <button class="video-thumb" data-yt="F5k74o3kri0" aria-label="Přehrát: Změním svět, když začnu v sobě">
+            <img src="https://i.ytimg.com/vi/F5k74o3kri0/hqdefault.jpg" alt="" loading="lazy"><span class="play"></span>
+          </button>
+          <h3>Změním svět, když začnu v sobě</h3>
+          <p>oficiální videoklip · nový singl 2026</p>
+        </div>
+        <div class="song">
+          <button class="video-thumb" data-yt="vDQuqQasoi4" aria-label="Přehrát: Jestřáb">
+            <img src="https://i.ytimg.com/vi/vDQuqQasoi4/hqdefault.jpg" alt="" loading="lazy"><span class="play"></span>
+          </button>
+          <h3>Jestřáb</h3>
+          <p>oficiální videoklip</p>
+        </div>
+        <div class="song">
+          <button class="video-thumb" data-yt="DeEg2q61gq8" aria-label="Přehrát: Vděčnost">
+            <img src="https://i.ytimg.com/vi/DeEg2q61gq8/hqdefault.jpg" alt="" loading="lazy"><span class="play"></span>
+          </button>
+          <h3>Vděčnost</h3>
+          <p>oficiální živý záznam</p>
+        </div>
+        <div class="song">
+          <button class="video-thumb" data-yt="mAs0Px_Tv-U" aria-label="Přehrát: Kurandera Song">
+            <img src="https://i.ytimg.com/vi/mAs0Px_Tv-U/hqdefault.jpg" alt="" loading="lazy"><span class="play"></span>
+          </button>
+          <h3>Kurandera Song</h3>
+          <p>nejlepší verze sebe sama · živě</p>
+        </div>
+      </div>
+      <p class="center" style="margin-top:2.2rem"><a class="seal-btn quill" href="https://www.youtube.com/@ElinorMarsiMusic">Všechny písně na YouTube</a></p>
+    </section>
+
+    <!-- ============ KAPITOLA IV ============ -->
+    <section class="chapter" id="obrazy">
+      <div class="chapter-head">
+        <p class="num">Kapitola čtvrtá</p>
+        <h2>Obrazy</h2>
+      </div>
+      <div class="album">
+        <figure><img src="https://i.ytimg.com/vi/iv5GyfOSFp4/maxresdefault.jpg" alt="" loading="lazy"><figcaption>Moře vzpomínek</figcaption></figure>
+        <figure><img src="https://i.ytimg.com/vi/tOJcNhLHxTM/maxresdefault.jpg" alt="" loading="lazy"><figcaption>Létám · vílí křídla</figcaption></figure>
+        <figure><img src="https://i.ytimg.com/vi/Mdi5pp9udRA/maxresdefault.jpg" alt="" loading="lazy"><figcaption>Svoboda</figcaption></figure>
+        <figure><img src="https://i.ytimg.com/vi/vDQuqQasoi4/maxresdefault.jpg" alt="" loading="lazy"><figcaption>z natáčení klipu Jestřáb</figcaption></figure>
+      </div>
+    </section>
+
+    <!-- ============ KAPITOLA V ============ -->
+    <section class="chapter" id="rider">
+      <div class="chapter-head">
+        <p class="num">Kapitola pátá</p>
+        <h2>Pro pořadatele</h2>
+      </div>
+      <p class="dropcap">Kdo chce princeznu a její kapelu pozvat na své pódium, nechť si přečte
+      technický rider — listinu, v níž stojí vše potřebné:</p>
+      <ul class="rider-list">
+        <li><strong>Obsazení</strong> — zpěv + doprovodná kapela; varianta sólo/duo na vyžádání.</li>
+        <li><strong>Zvuk</strong> — požadavky na PA, monitory a mikrofonní vstupy.</li>
+        <li><strong>Stage plot</strong> — rozmístění na pódiu, zapojení a rozměry.</li>
+        <li><strong>Světla a zázemí</strong> — světelné nálady k písním, požadavky na šatnu.</li>
+      </ul>
+      <p class="center">
+        <a class="seal-btn" href="#" aria-disabled="true">Stáhnout rider (PDF)</a>
+      </p>
+      <p class="sample-note">Dokument bude doplněn — pečeť je připravena.</p>
+    </section>
+
+    <!-- ============ KAPITOLA VI ============ -->
+    <section class="chapter" id="kontakt">
+      <div class="chapter-head">
+        <p class="num">Kapitola šestá</p>
+        <h2>Napište Elinor</h2>
+      </div>
+      <div class="contact-cols">
+        <div>
+          <h3>Booking &amp; management</h3>
+          <p><a href="mailto:booking@elinormarsi.com">booking@elinormarsi.com</a></p>
+          <p style="font-style:italic;color:#5c4322">Koncerty, festivaly, svatby i soukromé akce.</p>
+          <div class="socials">
+            <a href="https://www.youtube.com/@ElinorMarsiMusic" aria-label="YouTube"><svg viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.5 15.5v-7l6.5 3.5z"/></svg></a>
+            <a href="https://www.facebook.com/ElinorMarsiMusic/" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M24 12a12 12 0 1 0-13.9 11.9v-8.4h-3V12h3V9.4c0-3 1.8-4.7 4.6-4.7 1.3 0 2.7.2 2.7.2v3h-1.5c-1.5 0-2 .9-2 1.9V12h3.4l-.5 3.5h-2.9v8.4A12 12 0 0 0 24 12z"/></svg></a>
+            <a href="https://www.instagram.com/elinor_marsi/" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1 .4 2.2.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.2 1.8-.4 2.2a3.8 3.8 0 0 1-.9 1.4c-.4.4-.8.7-1.4.9-.4.2-1 .4-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.8-.2-2.2-.4a3.8 3.8 0 0 1-1.4-.9 3.8 3.8 0 0 1-.9-1.4c-.2-.4-.4-1-.4-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.9c.1-1.2.2-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.4 2.2-.4C8.4 2.2 8.8 2.2 12 2.2zm0 3.6a6.2 6.2 0 1 0 0 12.4 6.2 6.2 0 0 0 0-12.4zm0 10.2a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.4-10.4a1.4 1.4 0 1 1-2.9 0 1.4 1.4 0 0 1 2.9 0z"/></svg></a>
+          </div>
+        </div>
+        <div>
+          <h3>Novinky do vaší schránky</h3>
+          <p style="font-style:italic;color:#5c4322">Nové písně a termíny koncertů jednou za čas.</p>
+          <form onsubmit="event.preventDefault();this.querySelector('.ok').style.display='block'" style="margin-top:.8rem">
+            <input type="email" required placeholder="váš e-mail"
+              style="width:62%;padding:.75rem;border:1px solid var(--gold);background:var(--parchment-hi);font-family:inherit;font-size:1.05rem">
+            <button class="seal-btn" type="submit" style="padding:.7rem 1.4rem;font-size:.78rem">Odebírat</button>
+            <p class="ok" style="display:none;margin-top:.6rem;color:var(--forest)">Děkujeme! (ukázka — propojíme s mailing službou)</p>
+          </form>
+        </div>
+      </div>
+      <div class="colophon">
+        <img src="../../assets/wordmark-gold.png" alt="Elinor">
+        <p>Tuto knihu sepsala Elinor Marsi léta Páně 2026 · hudba, která léčí duši</p>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('.video-thumb').forEach(b=>{
+  b.addEventListener('click',()=>{
+    const f=document.createElement('iframe');
+    f.src='https://www.youtube.com/embed/'+b.dataset.yt+'?autoplay=1';
+    f.allow='autoplay; encrypted-media; picture-in-picture';f.allowFullscreen=true;
+    b.replaceWith(f);
+  });
+});
+</script>
+</body>
+</html>
