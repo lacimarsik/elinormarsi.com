@@ -11,6 +11,7 @@ The Dřevo a erb v3 hero layers (`v3/hero-forest.jpg`, `v3/plank.webp`, `v3/plan
 
 | File | Source | Author | Licence |
 | --- | --- | --- | --- |
+| `v3/tree-of-life.svg` | https://openclipart.org/detail/191259/celtic-tree (traced with potrace, redrawn as gold outlines, background removed) | Siddymcbill | CC0 1.0 (public domain dedication, stated on the item page) |
 
 ## Fonts
 

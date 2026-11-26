@@ -6,7 +6,7 @@
 <title>Elinor Marsi — Hluboký les (v3)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Uncial+Antiqua&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@900&family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Uncial+Antiqua&display=swap" rel="stylesheet">
 <style>
 :root{
   --night:#0c120d;
@@ -90,23 +90,21 @@ header.top a:hover{color:var(--gold)}
     url('../../assets/forest-only.jpg') center 32%/cover no-repeat;
 }
 .hero-inner{text-align:center;padding:7rem 1.5rem 5rem;position:relative;z-index:2}
-/* tree-of-life ring behind the title — the signature motif, reused as section dividers below */
-.ring{
+/* Celtic tree of life behind the title: a square slot sized here, so any square image can fill it */
+.tree-art{
   position:absolute;top:50%;left:50%;transform:translate(-50%,-54%);
-  width:min(78vmin,640px);height:min(78vmin,640px);z-index:-1;opacity:.85;
+  width:min(78vmin,640px);max-width:none;aspect-ratio:1;object-fit:contain;
+  z-index:-1;opacity:.35;pointer-events:none;animation:tree-in 2.4s ease-out .3s backwards;
 }
-.ring circle.o{fill:none;stroke:var(--gold);stroke-width:1.1;opacity:.85}
-.ring .knotwork{fill:none;stroke:var(--gold-soft);stroke-width:1;opacity:.55}
-.ring .tree{fill:none;stroke:var(--gold);stroke-width:1.4;stroke-linecap:round;
-  stroke-dasharray:1200;stroke-dashoffset:1200;animation:draw 3.2s ease-out .4s forwards}
-@keyframes draw{to{stroke-dashoffset:0}}
-.hero .eyebrow{display:block;margin-bottom:1.4rem}
+@keyframes tree-in{from{opacity:0}}
+.hero .eyebrow{display:block;margin-bottom:1.4rem;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.15rem}
 .hero h1{
   font-family:'Cinzel Decorative',serif;font-weight:900;
   font-size:clamp(3rem,9vw,6.8rem);line-height:1.04;color:#f1e6c8;
   text-shadow:0 4px 30px rgba(0,0,0,.9);
 }
-.hero h1 span{display:block;font-size:.42em;font-weight:400;letter-spacing:.42em;color:var(--gold);margin-top:.6rem}
+.hero h1 .sub{display:block;font-size:.42em;font-weight:400;letter-spacing:.42em;color:var(--gold);margin-top:.6rem}
+.e-swap{font-family:'Cinzel','Cinzel Decorative',serif;font-weight:900}
 .hero p.tag{font-size:1.35rem;font-style:italic;color:var(--mist);margin-top:1.6rem;text-shadow:0 2px 12px rgba(0,0,0,.9)}
 .hero-cta{margin-top:2.6rem;display:flex;gap:1.3rem;justify-content:center;flex-wrap:wrap}
 .btn{
@@ -285,14 +283,9 @@ footer{padding:2.4rem;text-align:center;font-size:.95rem;opacity:.6;border-top:1
 
 <section class="hero" id="uvod" style="padding:0">
   <div class="hero-inner">
-    <svg class="ring" viewBox="0 0 400 400" aria-hidden="true">
-      <circle class="o" cx="200" cy="200" r="186"/>
-      <circle class="o" cx="200" cy="200" r="176" stroke-dasharray="3 7"/>
-      <path class="knotwork" d="M200 24c30 26 30 52 0 78s-30 52 0 78 30 52 0 78 30 52 0 78M24 200c26-30 52-30 78 0s52 30 78 0 52-30 78 0 52 30 78 0" opacity=".35"/>
-      <path class="tree" d="M200 306v-92m0 0c-34-8-56-32-58-66m58 66c34-8 56-32 58-66m-58 66c-20-16-24-38-16-60m16 60c20-16 24-38 16-60m-74 26c-8-18-4-36 8-50m124 50c8-18 4-36-8-50m-124 50c14 4 26 12 32 24m100-24c-14 4-26 12-32 24m-68-74c10-14 26-22 42-22s32 8 42 22m-84 0c-6 14-6 28 0 40m84-40c6 14 6 28 0 40"/>
-    </svg>
+    <img class="tree-art" src="../../assets/v3/tree-of-life.svg" alt="">
     <span class="eyebrow">hudba · příroda · duše</span>
-    <h1>Elinor Marsi<span>zpěvačka a skladatelka</span></h1>
+    <h1><span class="e-swap">E</span>linor Marsi<span class="sub">zpěvačka a skladatelka</span></h1>
     <p class="tag">„Změním svět, když začnu v sobě.“</p>
     <div class="hero-cta">
       <a class="btn solid" href="#hudba">Poslechnout</a>
@@ -457,9 +450,16 @@ footer{padding:2.4rem;text-align:center;font-size:.95rem;opacity:.6;border-top:1
 <footer>© 2026 Elinor Marsi — hudba, která léčí duši</footer>
 
 <script>
-// nav background after scroll
-const topNav=document.getElementById('topnav');
-addEventListener('scroll',()=>topNav.classList.toggle('scrolled',scrollY>60),{passive:true});
+// nav sits just below the back bar, rides up with it on scroll, then sticks to the top with a background
+const topNav=document.getElementById('topnav'),backBar=document.querySelector('.back-to-v1');
+function placeNav(){
+  topNav.style.top=Math.max(0,backBar.getBoundingClientRect().bottom)+'px';
+  topNav.classList.toggle('scrolled',scrollY>60);
+}
+addEventListener('scroll',placeNav,{passive:true});
+addEventListener('resize',placeNav);
+document.fonts.ready.then(placeNav);
+placeNav();
 // scroll-triggered divider draw
 const io=new IntersectionObserver(es=>es.forEach(e=>e.target.classList.toggle('in-view',e.isIntersecting)),{threshold:.3});
 document.querySelectorAll('.sec-head').forEach(el=>io.observe(el));
