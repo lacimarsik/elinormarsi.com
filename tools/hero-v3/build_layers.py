@@ -144,17 +144,21 @@ def build_plank(hdr, strip, S):
     st[edge] = inner[edge]
     P = np.dstack([st, alpha])
 
-    # rebuild the wood behind the shield: mirror both neighbours inward and cross-fade
+    # rebuild the wood behind the shield: mirror both neighbours inward and cross-fade in the middle.
+    # Above the rail the mirror axes are fixed at the shield's full width, so the board grain and ivy
+    # mirror straight instead of following the diagonal shield wings.
     hole = ndi.binary_dilation(up(hole1) > 0.5, iterations=S)
+    hx = np.where(hole.any(0))[0]
+    box = (int(hx.min()), int(hx.max()))
     pre = P.copy(); pre[..., :3] *= pre[..., 3:4]
     for y in range(H):
         xr_ = np.where(hole[y])[0]
         if len(xr_) == 0:
             continue
-        xa, xb = int(xr_.min()), int(xr_.max())
+        xa, xb = (box if y < 150 * S else (int(xr_.min()), int(xr_.max())))
         x = np.arange(xa, xb + 1)
         t = (x - xa) / max(xb - xa, 1)
-        wl = 0.5 * (1 + np.cos(np.pi * np.clip((t - 0.3) / 0.4, 0, 1)))[:, None]
+        wl = 0.5 * (1 + np.cos(np.pi * np.clip((t - 0.44) / 0.12, 0, 1)))[:, None]
         pre[y, xa:xb + 1] = wl * pre[y, np.clip(2 * xa - 1 - x, 0, W - 1)] + (1 - wl) * pre[y, np.clip(2 * xb + 1 - x, 0, W - 1)]
     a = pre[..., 3:4]
     P = np.concatenate([np.where(a > 1e-4, pre[..., :3] / np.maximum(a, 1e-4), 0), a], -1)
