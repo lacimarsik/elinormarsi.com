@@ -6,8 +6,8 @@ Only public-domain or CC0 images are used. Fonts are SIL Open Font License (OFL)
 ## Images
 
 The Dřevo a erb v3 hero layers (`v3/hero-forest.jpg`, `v3/plank.webp`, `v3/plank.png`,
-`v3/logo.png`) are cut from this project's own artwork (`forest-header.jpg`,
-`forest-only.jpg`, `shield-sm.png`), so they have no third-party source.
+`v3/logo.png`) are cut from this project's own artwork (`forest-header.jpg` and
+`shield-sm.png`), so they have no third-party source.
 
 | File | Source | Author | Licence |
 | --- | --- | --- | --- |

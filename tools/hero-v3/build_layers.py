@@ -29,7 +29,7 @@ BAND = (70, 144)             # plain board rows removed
 DELTA = BAND[1] - BAND[0]
 MOSS_FADE = (12, 21)         # the moss strip along the top fades out between these rows
 LEAF = (1232, 1338, 58, 94)  # the one ivy leaf that hangs into the cut band stays in place
-PLANK_SCALE_MIN = 0.75       # lowest plank-to-photo scale ratio the hero produces (wide-short screens = 1)
+PLANK_SCALE_MIN = 0.6        # lowest plank-to-photo scale ratio the hero produces (portrait tablets ~0.65)
 
 
 def cap_left(y):   # barrel-shaped left end of the board, x of its outer edge per source row
@@ -145,12 +145,19 @@ def build_plank(hdr, ysub, hole1, strip, S):
     hue, sat, val = hsv(hdr[:H1])
     ivy1 = (hue > 50) & (hue < 120) & (sat > 0.22) & (val > 0.18)
     ivy1 = ndi.binary_dilation(ndi.binary_closing(ivy1, iterations=1), iterations=1).astype(np.float32)
-    # photo fringe baked into the carved edge: light or green/blue pixels just inside the contour
-    rows1 = np.arange(H1)[:, None]
-    near = (rows1 >= np.floor(ysub)[None, :] - 3) & (rows1 <= np.floor(ysub)[None, :] + 1)
+    # photo baked in just inside the contour: from the boundary upward, the unbroken run of pixels that
+    # aren't wood-coloured (green, grey, blue or white) is background and becomes transparent
     warm = ((hue <= 48) | (hue >= 335)) & (sat >= 0.15)
     whitish = (sat < 0.18) & (val > 0.45)
-    fringe1 = (near & (~warm | whitish) & (val > 0.3)).astype(np.float32)
+    notwood = (~warm | whitish) & (val > 0.08)
+    fringe1 = np.zeros((H1, W1), np.float32)
+    yb0 = np.floor(ysub).astype(int)
+    alive = np.ones(W1, bool)
+    for k in range(-1, 8):
+        y = np.clip(yb0 - k, 0, H1 - 1)
+        hit = alive & notwood[y, np.arange(W1)]
+        fringe1[y[hit], np.arange(W1)[hit]] = 1
+        alive &= hit | (k < 0)
 
     H, W = H1 * S, W1 * S
     up = lambda m: m.astype(np.float32) if S == 1 else np.asarray(
@@ -190,8 +197,10 @@ def build_plank(hdr, ysub, hole1, strip, S):
     xsrc = xs[None, :]
     in_board_rows = (ysrc >= BOARD[0]) & (ysrc <= BOARD[1])
     mb = ((xsrc >= CAP_L) & (xsrc <= CAP_R)).astype(np.float32) * np.ones_like(ysrc)
-    capl = np.clip((xsrc - cap_left(ysrc)) * S + 0.5, 0, 1)
-    capr = np.clip((cap_right(ysrc) - xsrc) * S + 0.5, 0, 1)
+    # caps sit slightly inside their drawn edge, and ivy touching the edge goes with the ivy, not the board
+    noivy = 1 - np.clip(up(ivy1) * 1.5, 0, 1)
+    capl = np.clip((xsrc - cap_left(ysrc) - 0.7) * S + 0.5, 0, 1) * noivy
+    capr = np.clip((cap_right(ysrc) - xsrc - 0.7) * S + 0.5, 0, 1) * noivy
     zone_l = (xsrc >= CAP_L - 10) & (xsrc <= 222)
     zone_r = (xsrc >= 1690) & (xsrc <= CAP_R + 8)
     mb = np.where(in_board_rows & zone_l, capl, mb)
@@ -219,11 +228,11 @@ def build_plank(hdr, ysub, hole1, strip, S):
     Bf = np.concatenate([np.where(a > 1e-4, Bcp[..., :3] / np.maximum(a, 1e-4), 0), a], -1)
 
     Es = shift_up(E, dl)
-    # behind the cap edges, carry the shifted ivy/wing a few pixels further in so no gap opens
-    for x0, x1, step in ((int(185 * S), int(214 * S), 1), (int(1716 * S), int(1694 * S), -1)):
-        for x in range(x0, x1, step):
-            m = (Es[:, x, 3] < 0.5) & (Es[:, x - step, 3] >= 0.5) & (np.arange(H) < 90 * S)
-            Es[m, x] = Es[m, x - step]
+    # right behind each cap edge sits dark shadow, so the cap's soft edge never shows a gap or light ivy
+    shadow = np.zeros_like(Es[:1, :1]) + np.array([0.10, 0.06, 0.035, 1.0], np.float32)
+    for xa, xb in ((190, 212), (1697, 1720)):
+        sl = np.s_[BOARD[0] * S:(BOARD[1] - DELTA + 1) * S, int(xa * S):int(xb * S)]
+        Es[sl] = over(Es[sl], np.broadcast_to(shadow, Es[sl].shape))
     # the moss strip stays where it is across the full width, behind the raised ivy and the board;
     # above the caps it also lies in front of the ivy, so the ivy's edge that the cap used to hide fades into it
     fade = np.clip((MOSS_FADE[1] * S - rows) / ((MOSS_FADE[1] - MOSS_FADE[0]) * S), 0, 1)
