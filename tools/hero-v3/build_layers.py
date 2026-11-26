@@ -1,8 +1,8 @@
 """Build the Dřevo a erb v3 hero layers from the project's own artwork.
 
 Writes assets/v3/plank.png + plank.webp (carved plank cut out of forest-header.jpg, rebuilt behind
-the shield, 74 source rows slimmer) and assets/v3/hero-forest.jpg (forest-only.jpg in its original
-place, with the rows above it filled from its own top rows).
+the shield, 74 source rows slimmer) and assets/v3/hero-forest.jpg (the same forest frame with the
+old plank area filled from the photo's own pixels).
 
 usage (from the repo root):
   python3 tools/hero-v3/build_layers.py                  # Lanczos 2x plank
@@ -14,6 +14,8 @@ import sys
 import numpy as np
 from PIL import Image, ImageFilter
 from scipy import ndimage as ndi
+from scipy.sparse import coo_matrix
+from scipy.sparse.linalg import cg
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 A = os.path.join(ROOT, "assets")
@@ -22,11 +24,20 @@ OUT_SCALE = 2  # plank is written at 3840 px wide
 
 H1, W1 = 300, 1920
 CAP_L, CAP_R = 195, 1713     # board end caps; columns outside them are the ends (ivy, wing)
-BAND = (70, 144)             # plain board rows removed in board columns
+BOARD = (16, 150)            # rows of the top board, barrel-shaped caps included
+BAND = (70, 144)             # plain board rows removed
 DELTA = BAND[1] - BAND[0]
-END_BACK_SHIFT = 40          # the ends' top rows are backed by the same columns moved up this much
-MOSS_FADE = (14, 24)         # ...fading out between these rows, so the moss strip runs full width
+MOSS_FADE = (12, 21)         # the moss strip along the top fades out between these rows
 LEAF = (1232, 1338, 58, 94)  # the one ivy leaf that hangs into the cut band stays in place
+PLANK_SCALE_MIN = 0.75       # lowest plank-to-photo scale ratio the hero produces (wide-short screens = 1)
+
+
+def cap_left(y):   # barrel-shaped left end of the board, x of its outer edge per source row
+    return 197 + 0.0018 * (y - 65) ** 2
+
+
+def cap_right(y):
+    return 1715 - 0.0018 * (y - 65) ** 2
 
 
 def hsv(img):
@@ -38,7 +49,7 @@ def hsv(img):
 
 
 def plank_boundary(hdr):
-    """Row per column where the plank ends and the photo starts (plank above), plus a sub-pixel refine."""
+    """Row per column where the plank ends and the photo starts (plank above), refined to sub-pixel."""
     H = 330
     rgb = hdr[:H]
     hue, sat, _ = hsv(rgb)
@@ -71,7 +82,6 @@ def plank_boundary(hdr):
     yb[-1] = int(np.argmin(acc))
     for x in range(W1 - 1, 0, -1):
         yb[x - 1] = back[yb[x], x]
-    # refine to the strongest vertical colour change near the path
     sm = ndi.gaussian_filter(hdr[:H1], sigma=(0.7, 0.7, 0))
     gy = np.abs(np.diff(sm, axis=0)).sum(-1)
     ysub = np.empty(W1, np.float32)
@@ -113,7 +123,7 @@ def shield_hole(hdr):
     hole = np.zeros(hdr.shape[:2], np.float32)
     y0 = max(oy, 0)
     hole[y0:oy + h, ox:ox + w] = s[y0 - oy:, :, 3]
-    return ndi.binary_dilation(hole > 0.04, iterations=2)[:H1]
+    return ndi.binary_dilation(hole > 0.04, iterations=2)
 
 
 def over(top, bot):
@@ -123,31 +133,43 @@ def over(top, bot):
     return np.concatenate([oc, oa], -1)
 
 
-def build_plank(hdr, strip, S):
-    ysub = plank_boundary(hdr)
-    hole1 = shield_hole(hdr)
-    hue, sat, mx = hsv(hdr[:H1])
-    ivy1 = ((hue > 50) & (hue < 120) & (sat > 0.22) & (mx > 0.18))
+def with_alpha(img, m):
+    return np.concatenate([img[..., :3], img[..., 3:4] * m[..., None]], -1)
+
+
+def shift_up(img, n):
+    return np.concatenate([img[n:], np.zeros_like(img[:n])], 0)
+
+
+def build_plank(hdr, ysub, hole1, strip, S):
+    hue, sat, val = hsv(hdr[:H1])
+    ivy1 = (hue > 50) & (hue < 120) & (sat > 0.22) & (val > 0.18)
     ivy1 = ndi.binary_dilation(ndi.binary_closing(ivy1, iterations=1), iterations=1).astype(np.float32)
+    # photo fringe baked into the carved edge: light or green/blue pixels just inside the contour
+    rows1 = np.arange(H1)[:, None]
+    near = (rows1 >= np.floor(ysub)[None, :] - 3) & (rows1 <= np.floor(ysub)[None, :] + 1)
+    warm = ((hue <= 48) | (hue >= 335)) & (sat >= 0.15)
+    whitish = (sat < 0.18) & (val > 0.45)
+    fringe1 = (near & (~warm | whitish) & (val > 0.3)).astype(np.float32)
 
     H, W = H1 * S, W1 * S
-    st = strip.copy()
     up = lambda m: m.astype(np.float32) if S == 1 else np.asarray(
-        Image.fromarray((m * 255).astype(np.uint8)).resize((W, H), Image.BILINEAR)).astype(np.float32) / 255
-
+        Image.fromarray((np.clip(m, 0, 1) * 255).astype(np.uint8)).resize((W, H), Image.BILINEAR)).astype(np.float32) / 255
     xs = (np.arange(W) + 0.5) / S - 0.5
-    yS = S * (np.interp(xs, np.arange(W1), ysub) - 0.35)  # sit just inside the carved edge
     rows = np.arange(H, dtype=np.float32)[:, None]
+
+    st = strip.copy()
+    yS = S * (np.interp(xs, np.arange(W1), ysub) - 0.35)
     alpha = ndi.gaussian_filter(np.clip(yS[None, :] - rows, 0, 1), 0.45 * S)
-    inner = np.vstack([st[:2 * S], st[:-2 * S]])  # edge pixels take the wood colour from inside
-    edge = (alpha > 0.002) & (alpha < 0.995)
+    alpha = alpha * (1 - ndi.gaussian_filter(up(fringe1), 0.5 * S))
+    inner = np.vstack([st[:3 * S], st[:-3 * S]])  # edge pixels take the wood colour from inside
+    edge = (alpha > 0.002) & (rows >= (yS[None, :] - 4 * S))
     st[edge] = inner[edge]
     P = np.dstack([st, alpha])
 
-    # rebuild the wood behind the shield: mirror both neighbours inward and cross-fade in the middle.
-    # Above the rail the mirror axes are fixed at the shield's full width, so the board grain and ivy
-    # mirror straight instead of following the diagonal shield wings.
-    hole = ndi.binary_dilation(up(hole1) > 0.5, iterations=S)
+    # rebuild the wood behind the shield: mirror both neighbours inward and cross-fade in the middle;
+    # above the rail the mirror axes are fixed at the shield's full width so grain and ivy stay straight
+    hole = ndi.binary_dilation(up(hole1[:H1].astype(np.float32)) > 0.5, iterations=S)
     hx = np.where(hole.any(0))[0]
     box = (int(hx.min()), int(hx.max()))
     pre = P.copy(); pre[..., :3] *= pre[..., 3:4]
@@ -163,18 +185,54 @@ def build_plank(hdr, strip, S):
     a = pre[..., 3:4]
     P = np.concatenate([np.where(a > 1e-4, pre[..., :3] / np.maximum(a, 1e-4), 0), a], -1)
 
-    shift_up = lambda img, n: np.concatenate([img[n:], np.zeros_like(img[:n])], 0)
-    O = np.zeros_like(P)
-    cl, cr = CAP_L * S, CAP_R * S
-    b1, b2, dl, bs = BAND[0] * S, BAND[1] * S, DELTA * S, END_BACK_SHIFT * S
-    O[:b1, cl:cr + 1] = P[:b1, cl:cr + 1]
-    O[b1:H - dl, cl:cr + 1] = P[b2:, cl:cr + 1]
-    fade = np.clip((MOSS_FADE[1] * S - rows) / ((MOSS_FADE[1] - MOSS_FADE[0]) * S), 0, 1)[..., None]
-    for sl in (np.s_[:, :cl], np.s_[:, cr + 1:]):
-        seg = P[sl]
-        back = shift_up(seg, bs)
-        back = np.concatenate([back[..., :3], back[..., 3:4] * fade], -1)
-        O[sl] = over(shift_up(seg, dl), back)
+    # split into the board (with its barrel-shaped end caps) and the ends (ivy, moss, wings)
+    ysrc = (rows + 0.5) / S - 0.5
+    xsrc = xs[None, :]
+    in_board_rows = (ysrc >= BOARD[0]) & (ysrc <= BOARD[1])
+    mb = ((xsrc >= CAP_L) & (xsrc <= CAP_R)).astype(np.float32) * np.ones_like(ysrc)
+    capl = np.clip((xsrc - cap_left(ysrc)) * S + 0.5, 0, 1)
+    capr = np.clip((cap_right(ysrc) - xsrc) * S + 0.5, 0, 1)
+    zone_l = (xsrc >= CAP_L - 10) & (xsrc <= 222)
+    zone_r = (xsrc >= 1690) & (xsrc <= CAP_R + 8)
+    mb = np.where(in_board_rows & zone_l, capl, mb)
+    mb = np.where(in_board_rows & zone_r, capr, mb)
+    ends = (xsrc < 230) | (xsrc > 1683)
+    B = with_alpha(P, mb)
+    E = with_alpha(P, (1 - mb) * ends)
+
+    b1, b2, dl = BAND[0] * S, BAND[1] * S, DELTA * S
+    Bc = np.zeros_like(B)
+    Bc[:b1] = B[:b1]
+    Bc[b1:H - dl] = B[b2:]
+    # caps: squeeze the whole board height into the slimmer board so the barrel ends stay rounded
+    top, bot = BOARD[0] * S, BOARD[1] * S
+    new_bot = bot - dl
+    yo = np.arange(top, new_bot + 1)
+    yi = top + (yo - top) * (bot - top) / (new_bot - top)
+    y0i = np.floor(yi).astype(int); fy = (yi - y0i)[:, None, None]
+    Bpre = B.copy(); Bpre[..., :3] *= Bpre[..., 3:4]
+    C = Bpre[y0i] * (1 - fy) + Bpre[np.minimum(y0i + 1, H - 1)] * fy
+    wx = np.clip(np.maximum((246 - xs) / 30.0, (xs - 1662) / 30.0), 0, 1)[None, :, None]
+    Bcp = Bc.copy(); Bcp[..., :3] *= Bcp[..., 3:4]
+    Bcp[top:new_bot + 1] = Bcp[top:new_bot + 1] * (1 - wx) + C * wx
+    a = Bcp[..., 3:4]
+    Bf = np.concatenate([np.where(a > 1e-4, Bcp[..., :3] / np.maximum(a, 1e-4), 0), a], -1)
+
+    Es = shift_up(E, dl)
+    # behind the cap edges, carry the shifted ivy/wing a few pixels further in so no gap opens
+    for x0, x1, step in ((int(185 * S), int(214 * S), 1), (int(1716 * S), int(1694 * S), -1)):
+        for x in range(x0, x1, step):
+            m = (Es[:, x, 3] < 0.5) & (Es[:, x - step, 3] >= 0.5) & (np.arange(H) < 90 * S)
+            Es[m, x] = Es[m, x - step]
+    # the moss strip stays where it is across the full width, behind the raised ivy and the board;
+    # above the caps it also lies in front of the ivy, so the ivy's edge that the cap used to hide fades into it
+    fade = np.clip((MOSS_FADE[1] * S - rows) / ((MOSS_FADE[1] - MOSS_FADE[0]) * S), 0, 1)
+    moss = with_alpha(P, fade.repeat(W, 1))
+    reach = np.clip(np.minimum((xs - 178) / 18.0, (1735 - xs) / 18.0), 0, 1)[None, :]
+    moss_front = with_alpha(P, fade * reach)
+    body = with_alpha(Bf, (rows >= BOARD[0] * S).astype(np.float32).repeat(W, 1))
+    O = over(body, over(moss_front, over(Es, moss)))
+
     lx0, lx1, ly0, ly1 = [v * S for v in LEAF]
     leaf = np.zeros_like(P)
     lm = ndi.gaussian_filter(up(ivy1)[ly0:ly1, lx0:lx1][..., None], (0.6 * S, 0.6 * S, 0))
@@ -184,39 +242,63 @@ def build_plank(hdr, strip, S):
     return O[:bottom]
 
 
-def build_photo():
-    fo = np.asarray(Image.open(os.path.join(A, "forest-only.jpg")).convert("RGB")).astype(np.float32) / 255
-    TOP = 280
-    src = fo[:TOP].copy()
-    # swap the client's head (top of forest-only, x ~850-1180) for forest beside it before mirroring
-    x = np.arange(W1)
-    wx = np.clip(np.minimum(x - 820, 1210 - x) / 40.0, 0, 1)
-    wy = np.clip((np.arange(TOP) - 22) / 14.0, 0, 1)[:, None]
-    w = (wy * wx[None, :])[..., None]
-    left, right = np.roll(fo[:TOP], 400, axis=1), np.roll(fo[:TOP], -400, axis=1)
-    side = np.where((x < 1015)[None, :, None], left, right)
-    seam = np.clip(1 - np.abs(x - 1015) / 30.0, 0, 1)[None, :, None]
-    side = side * (1 - seam) + 0.5 * (left + right) * seam
-    src = src * (1 - w) + side * w
-    # mirrored and stretched 2.5x upward, blurring and darkening with distance from the seam
-    d = (TOP - 1 - np.arange(TOP)).astype(np.float32)
-    s = d * 0.4
-    s0 = np.floor(s).astype(int); f = (s - s0)[:, None, None]
-    band = src[s0] * (1 - f) + src[np.minimum(s0 + 1, TOP - 1)] * f
-    levels = [0, 1.5, 3, 5, 8]
-    blurred = [band if v == 0 else ndi.gaussian_filter(band, (v, v * 0.6, 0)) for v in levels]
-    sig = np.clip(d / 16.0, 0, 8)
-    outb = np.zeros_like(band)
-    for i in range(len(levels) - 1):
-        lo, hi = levels[i], levels[i + 1]
-        t = np.clip((sig - lo) / (hi - lo), 0, 1)[:, None, None]
-        m = ((sig >= lo) & (sig <= hi))[:, None, None] if i < len(levels) - 2 else (sig >= lo)[:, None, None]
-        outb = np.where(m, blurred[i] * (1 - t) + blurred[i + 1] * t, outb)
-    u = np.clip(d / 150.0, 0, 1)
-    k = (1 - 0.7 * u * u * (3 - 2 * u))[:, None, None]
-    outb = outb * k + np.array([0.055, 0.045, 0.03], np.float32) * (1 - k) * 0.6
-    frame = np.concatenate([outb, fo], 0)
-    return Image.fromarray((np.clip(frame, 0, 1) * 255 + 0.5).astype(np.uint8))
+def poisson_fill(frame, known, omega, guide):
+    """Fill omega so its gradients follow guide and it meets the known pixels without a seam."""
+    H, W = known.shape
+    idx = -np.ones((H, W), np.int64)
+    ys, xs = np.where(omega)
+    n = len(ys)
+    idx[ys, xs] = np.arange(n)
+    diag = np.zeros(n)
+    rr, cc = [], []
+    b = np.zeros((n, 3))
+    for dy, dx in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+        yy, xx = ys + dy, xs + dx
+        ins = (yy >= 0) & (yy < H) & (xx >= 0) & (xx < W)
+        yyc, xxc = np.clip(yy, 0, H - 1), np.clip(xx, 0, W - 1)
+        nb_o = ins & (idx[yyc, xxc] >= 0)
+        nb_k = ins & known[yyc, xxc] & ~nb_o
+        valid = nb_o | nb_k
+        diag += valid
+        p = np.where(nb_o)[0]
+        rr.append(p); cc.append(idx[yyc[p], xxc[p]])
+        b[nb_k] += frame[yyc[nb_k], xxc[nb_k]]
+        b[valid] += guide[ys[valid], xs[valid]] - guide[yyc[valid], xxc[valid]]
+    rr = np.concatenate([np.arange(n)] + rr); cc = np.concatenate([np.arange(n)] + cc)
+    vals = np.concatenate([diag, -np.ones(len(rr) - n)])
+    M = coo_matrix((vals, (rr, cc)), shape=(n, n)).tocsr()
+    out = frame.copy()
+    for ch in range(3):
+        x0 = guide[ys, xs, ch]
+        sol, _ = cg(M, b[:, ch], x0=x0, rtol=1e-5, maxiter=3000)
+        out[ys, xs, ch] = sol
+    return out
+
+
+def build_photo(hdr, ysub, hole1):
+    """The header frame with the old plank (and the shield's shadow) replaced by forest from the photo."""
+    H, W = hdr.shape[:2]
+    yy = np.arange(H)[:, None]
+    unknown = (yy < np.ceil(ysub)[None, :] + 3) | hole1[:H]
+    unknown[330:] = False
+    known = ~unknown
+    # the part of the old plank area that can show under the new plank on any screen
+    ymin = np.maximum(0, PLANK_SCALE_MIN * (ysub - DELTA) - 12)
+    omega = unknown & (yy >= ymin[None, :])
+    need = ysub + 3 - ymin
+    T = ndi.gaussian_filter1d(ndi.maximum_filter1d(need, 81), 30) + 6
+    x = np.arange(W)
+    # forest copied up from below; around the client's head it comes from beside her instead
+    beta = np.clip(np.minimum((x - 800) / 50.0, (1210 - x) / 50.0), 0, 1)
+    ys_ = np.clip(yy + T[None, :].astype(int), 0, H - 1)
+    side = hdr[ys_, x[None, :]]
+    ysc = np.clip(yy + 130, 0, H - 1)
+    centre = hdr[ysc, np.clip(x + 420, 0, W - 1)[None, :]]
+    guide = side * (1 - beta[None, :, None]) + centre * beta[None, :, None]
+    out = poisson_fill(hdr.astype(np.float64), known, omega, guide.astype(np.float64))
+    hidden = unknown & ~omega
+    out[hidden] = guide[hidden] * 0.35 + 0.02
+    return Image.fromarray((np.clip(out, 0, 1) * 255 + 0.5).astype(np.uint8))
 
 
 def main():
@@ -233,11 +315,13 @@ def main():
         strip = hdr_img.crop((0, 0, W1, H1)).resize((W1 * OUT_SCALE, H1 * OUT_SCALE), Image.LANCZOS)
         strip = strip.filter(ImageFilter.UnsharpMask(radius=1.2, percent=60, threshold=2))
     st = np.asarray(strip).astype(np.float32) / 255
-    O = build_plank(hdr, st, OUT_SCALE)
+    ysub = plank_boundary(hdr)
+    hole1 = shield_hole(hdr)
+    O = build_plank(hdr, ysub, hole1, st, OUT_SCALE)
     im = Image.fromarray((np.clip(O, 0, 1) * 255 + 0.5).astype(np.uint8), "RGBA")
     im.save(os.path.join(OUT, "plank.png"), optimize=True)
     im.save(os.path.join(OUT, "plank.webp"), quality=90, method=6, alpha_quality=100)
-    build_photo().save(os.path.join(OUT, "hero-forest.jpg"), quality=92, optimize=True, progressive=True)
+    build_photo(hdr, ysub, hole1).save(os.path.join(OUT, "hero-forest.jpg"), quality=92, optimize=True, progressive=True)
     print("plank", im.size, "-> assets/v3/plank.{png,webp}; photo -> assets/v3/hero-forest.jpg")
 
 
