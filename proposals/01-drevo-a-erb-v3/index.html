@@ -36,10 +36,10 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--gold);outline-offse
 .skip-link{position:absolute;left:-999px;top:0;background:var(--bark);color:var(--gold-bright);padding:.9rem 1.4rem;z-index:200;font-family:'Cinzel',serif}
 .skip-link:focus{left:1rem;top:1rem}
 
-/* ============ HERO with baked wooden plank ============ */
+/* ============ HERO: forest photo, carved plank and crest as separate layers ============ */
 .hero{
   position:relative;
-  background:url('../../assets/forest-header.jpg') top center/cover no-repeat;
+  background:url('../../assets/v3/hero-forest.jpg') top center/cover no-repeat;
   min-height:clamp(560px,92vh,880px);
   display:flex;flex-direction:column;
 }
@@ -48,17 +48,20 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--gold);outline-offse
 .hero::before{content:'';position:absolute;inset:0;
   background:radial-gradient(ellipse 60% 45% at 50% 62%, rgba(20,10,4,.42), transparent 72%);
   pointer-events:none;}
-/* nav laid over the carved plank, capped so it can't run away on ultrawide or vanish on laptop heights */
-.plank-nav{position:absolute;top:0;left:0;right:0;height:clamp(96px,12.5vw,190px);z-index:5;
-  max-width:1600px;margin:0 auto}
-.plank-nav ul{list-style:none;display:flex;gap:clamp(1.3rem,2.4vw,2.6rem);
-  padding-top:clamp(2.6rem,4.6vw,5.2rem);position:absolute;top:0;width:50%}
-.plank-nav ul.left{left:0;justify-content:flex-end;padding-right:clamp(2.4rem,7.5vw,10.5rem)}
-.plank-nav ul.right{right:0;justify-content:flex-start;padding-left:clamp(2.4rem,7.5vw,10.5rem)}
+/* plank, crest and nav all scale with the hero width; vertical offsets are margin-top
+   percentages, which also resolve against the width, so the three stay aligned */
+.hero-art{position:absolute;top:0;left:0;right:0;z-index:3;pointer-events:none}
+.hero-art img{display:block;width:100%;height:auto}
+.crest{position:absolute;top:0;left:50%;z-index:4;width:12.75%;height:auto;transform:translateX(-50%)}
+.plank-nav{position:absolute;top:0;left:0;right:0;z-index:5;margin-top:5.55%;transform:translateY(-50%);
+  display:flex;gap:13%}
+.plank-nav ul{list-style:none;display:flex;gap:1.6vw;flex:1}
+.plank-nav ul.left{justify-content:flex-end}
+.plank-nav ul.right{justify-content:flex-start}
 .plank-nav a{
   font-family:'Cinzel',serif;font-weight:600;text-decoration:none;
-  color:var(--gold-bright);font-size:clamp(.82rem,1.1vw,1.05rem);letter-spacing:.13em;text-transform:uppercase;
-  text-shadow:0 2px 6px rgba(0,0,0,.85);white-space:nowrap;
+  color:var(--gold-bright);font-size:clamp(.78rem,1vw,1rem);letter-spacing:.1em;text-transform:uppercase;
+  text-shadow:0 1px 2px rgba(0,0,0,.9),0 2px 8px rgba(0,0,0,.85);white-space:nowrap;
   transition:color .25s, text-shadow .25s;
 }
 .plank-nav a:hover,.plank-nav a:focus-visible{color:#fff;text-shadow:0 0 14px rgba(233,215,167,.95)}
@@ -75,6 +78,8 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--gold);outline-offse
   text-shadow:0 3px 18px rgba(0,0,0,.9), 0 0 46px rgba(201,169,97,.35);
   letter-spacing:.07em;
 }
+/* Cinzel Decorative's E reads as cut off; Cinzel's E at the same weight replaces it */
+.e-swap{font-family:'Cinzel',serif}
 .hero-title p.tag{
   font-family:'Cinzel',serif;color:#f4ecd7;font-size:clamp(1rem,1.9vw,1.4rem);
   letter-spacing:.16em;margin-top:1rem;font-style:italic;
@@ -295,7 +300,7 @@ footer p{font-size:.92rem}
 .back-to-v1:hover{color:var(--gold-bright)}
 
 @media(max-width:900px){
-  .plank-nav{display:none}
+  .plank-nav,.hero-art,.crest{display:none}
   .mobile-bar{display:flex!important}
   .hero{min-height:74vh;background-size:auto 175%;background-position:42% 62%}
   .hero-title{padding-top:9rem}
@@ -323,6 +328,13 @@ footer p{font-size:.92rem}
 </div>
 
 <header class="hero">
+  <div class="hero-art" aria-hidden="true">
+    <picture>
+      <source srcset="../../assets/v3/plank.webp" type="image/webp">
+      <img src="../../assets/v3/plank.png" alt="" width="3840" height="412">
+    </picture>
+  </div>
+  <img class="crest" src="../../assets/v3/logo.png" alt="Erb Elinor" width="640" height="638">
   <div class="mobile-bar">
     <img src="../../assets/wordmark-gold.png" alt="Elinor">
     <button class="menu-btn" id="menuBtn" aria-label="Otevřít menu" aria-expanded="false" aria-controls="drawer">☰</button>
@@ -341,7 +353,7 @@ footer p{font-size:.92rem}
   </nav>
   <div class="hero-title">
     <span class="eyebrow">hudba · příroda · duše</span>
-    <h1>Elinor Marsi</h1>
+    <h1><span class="e-swap">E</span>linor Marsi</h1>
     <p class="tag">Písně o vnitřní síle, přírodě a odvaze žít naplno</p>
     <div class="hero-cta">
       <a class="btn btn-gold" href="#hudba">Poslechnout hudbu</a>
