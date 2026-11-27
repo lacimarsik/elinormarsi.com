@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elinor Marsi — písmo jména</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@700;900&family=Metamorphous&family=Amarante&family=Eagle+Lake&family=Cormorant+Unicase:wght@700&family=Fondamento&family=Uncial+Antiqua&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --night:#0c120d;
+  --mist:#c7cfc2;
+  --gold:#d4af6a;
+  --gold-soft:#a98944;
+  --name:#e9d7a7;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Cormorant Garamond',serif;font-size:1.15rem;line-height:1.6;
+  font-variant-numeric:lining-nums;color:var(--mist);background:var(--night);
+}
+a{color:var(--gold)}
+a:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.back{display:block;text-align:center;padding:.75rem 1rem;background:#070a08;color:var(--gold-soft);
+  font-weight:600;font-size:1.02rem;letter-spacing:.08em;text-decoration:none}
+.back:hover{color:var(--gold)}
+
+/* ============ intro ============ */
+.intro{max-width:820px;margin:0 auto;padding:3.4rem 1.5rem 2.6rem;text-align:center}
+.eyebrow{display:block;font-weight:600;font-size:.9rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold-soft)}
+.intro h1{font-weight:600;font-size:clamp(2rem,4.6vw,3rem);line-height:1.15;color:var(--name);margin-top:.5rem}
+.intro p{margin-top:1.1rem}
+.intro .note{font-size:1.03rem;opacity:.8}
+
+/* ============ panels: one font each, on the hero background ============ */
+main{max-width:1200px;margin:0 auto;padding:0 1.5rem 3rem;display:grid;gap:2.2rem}
+.panel{
+  border:1px solid rgba(212,175,106,.35);border-radius:6px;overflow:hidden;
+  box-shadow:0 18px 40px rgba(0,0,0,.5);
+  background:
+    linear-gradient(180deg,rgba(6,10,7,.74) 0%,rgba(8,12,9,.5) 40%,rgba(8,12,9,.9) 100%),
+    linear-gradient(90deg,rgba(8,12,9,.35) 20%,rgba(8,12,9,.15) 50%,rgba(8,12,9,.55) 80%),
+    url('../../assets/forest-only.jpg') center 32%/cover no-repeat;
+}
+.panel-head{padding:1.3rem 1.7rem 0}
+.panel h2{font-weight:600;font-size:1.32rem;line-height:1.3;color:var(--gold);letter-spacing:.03em;text-wrap:balance}
+.meta{margin-top:.35rem;font-size:1.06rem;line-height:1.45}
+.meta em{color:#dde3d8}
+.lic{display:inline-block;margin-right:.55rem;padding:0 .45rem;border:1px solid var(--gold-soft);border-radius:3px;
+  font-weight:600;font-size:.78rem;letter-spacing:.12em;color:var(--gold);vertical-align:.12em}
+.lic abbr{text-decoration:none}
+.stage{padding:2.6rem 1.5rem 3rem;text-align:center;font-synthesis:none}
+.name{font-size:clamp(2.6rem,7vw,5.6rem);line-height:1.12;color:var(--name);text-shadow:0 4px 30px rgba(0,0,0,.9)}
+.test-line{margin:1.5rem auto 0;max-width:34em;font-size:clamp(1.1rem,2.3vw,1.55rem);line-height:1.5;
+  color:var(--name);text-shadow:0 2px 12px rgba(0,0,0,.9);text-wrap:balance}
+
+/* each candidate is set at a weight its Google Fonts file really has, so nothing is synthesized */
+.f-cd{font-family:'Cinzel Decorative',serif}
+.w700{font-weight:700}
+.w900{font-weight:900}
+.spaced{letter-spacing:.07em}
+.e-swap{font-family:'Cinzel','Cinzel Decorative',serif}
+.f-metamorphous{font-family:'Metamorphous',serif;font-weight:400}
+.f-amarante{font-family:'Amarante',serif;font-weight:400}
+.f-eagle{font-family:'Eagle Lake',serif;font-weight:400}
+.f-unicase{font-family:'Cormorant Unicase',serif;font-weight:700}
+.f-fondamento{font-family:'Fondamento',serif;font-weight:400}
+.f-uncial{font-family:'Uncial Antiqua',serif;font-weight:400}
+
+/* option 0: the current E next to its replacement, per hero weight */
+.e-compare{display:flex;flex-wrap:wrap;justify-content:center;gap:1.4rem 2.6rem;margin-bottom:2.6rem}
+.e-set-title{font-weight:600;font-size:.92rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-soft);margin-bottom:.6rem}
+.e-row{display:flex;gap:.9rem;justify-content:center}
+.e-tile{width:clamp(8.5rem,14vw,11rem);padding:.6rem .5rem .7rem;border:1px solid rgba(212,175,106,.3);
+  border-radius:4px;background:rgba(6,10,7,.6)}
+.e-tile.new{border-color:rgba(212,175,106,.8)}
+.big-e{display:block;font-size:clamp(5rem,9vw,7.5rem);line-height:1.15;color:var(--name);text-shadow:0 4px 30px rgba(0,0,0,.9)}
+.e-cap{display:block;font-size:1.02rem;line-height:1.3;color:var(--mist)}
+.e-cap b{display:block;font-weight:600;color:var(--name)}
+.name-note{font-style:italic;font-size:1.02rem;color:var(--mist);opacity:.85;margin:.15rem 0 1.6rem}
+
+footer{max-width:820px;margin:0 auto;padding:0 1.5rem 3rem;text-align:center;font-size:1rem;opacity:.65}
+
+@media(max-width:700px){
+  .intro{padding:2.6rem 1rem 2rem}
+  main{padding:0 1rem 2.4rem;gap:1.6rem}
+  .panel-head{padding:1.1rem 1.1rem 0}
+  .stage{padding:2rem .9rem 2.4rem}
+  footer{padding:0 1rem 2.4rem}
+}
+</style>
+</head>
+<body>
+<a class="back" href="../../index.html">← Zpět na výběr návrhů</a>
+
+<header class="intro">
+  <span class="eyebrow">písmo jména</span>
+  <h1>Písmo pro jméno Elinor&nbsp;Marsi</h1>
+  <p>Cinzel Decorative se vám líbí, jen velké E ve jméně působí useknutě — jeho horní tah je přerušený.
+  Možnost&nbsp;0 proto písmo ponechává a&nbsp;vyměňuje jen toto E. Možnosti&nbsp;1–6 jsou podobná písma s&nbsp;keltským
+  nebo elfím nádechem, seřazená od nejvhodnějšího.</p>
+  <p class="note">Všechna písma jsou zdarma pod licencí OFL a&nbsp;správně zobrazí háčky i&nbsp;čárky —
+  pod každým jménem je zkušební věta, na které to uvidíte.</p>
+</header>
+
+<main>
+  <section class="panel" id="moznost-0" aria-labelledby="m0">
+    <div class="panel-head">
+      <h2 id="m0">Možnost&nbsp;0 — Cinzel Decorative s&nbsp;jiným&nbsp;E</h2>
+      <p class="meta"><span class="lic">Licence <abbr title="SIL Open Font License 1.1">OFL</abbr></span><em>Stejné písmo jako dnes, jen zdobné E s&nbsp;přerušeným horním tahem nahradí celistvé E z&nbsp;příbuzného písma Cinzel.</em></p>
+    </div>
+    <div class="stage">
+      <div class="e-compare">
+        <div class="e-set">
+          <p class="e-set-title">Dřevo a&nbsp;erb</p>
+          <div class="e-row">
+            <div class="e-tile"><span class="big-e f-cd w700">E</span><span class="e-cap"><b>dnes</b>Cinzel Decorative</span></div>
+            <div class="e-tile new"><span class="big-e e-swap w700">E</span><span class="e-cap"><b>nově</b>Cinzel</span></div>
+          </div>
+        </div>
+        <div class="e-set">
+          <p class="e-set-title">Hluboký les</p>
+          <div class="e-row">
+            <div class="e-tile"><span class="big-e f-cd w900">E</span><span class="e-cap"><b>dnes</b>Cinzel Decorative</span></div>
+            <div class="e-tile new"><span class="big-e e-swap w900">E</span><span class="e-cap"><b>nově</b>Cinzel</span></div>
+          </div>
+        </div>
+      </div>
+      <p class="name f-cd w700 spaced"><span class="e-swap">E</span>linor Marsi</p>
+      <p class="name-note">s&nbsp;novým E — jako v&nbsp;návrhu Dřevo a&nbsp;erb</p>
+      <p class="name f-cd w900"><span class="e-swap">E</span>linor Marsi</p>
+      <p class="name-note">s&nbsp;novým E — jako v&nbsp;návrhu Hluboký les</p>
+      <p class="test-line f-cd w700">Příliš žluťoučký kůň úpěl ďábelské ódy&nbsp;— Ř<span class="e-swap">Ě</span>ČŮŽ</p>
+    </div>
+  </section>
+
+  <section class="panel" id="moznost-1" aria-labelledby="m1">
+    <div class="panel-head">
+      <h2 id="m1">Možnost&nbsp;1 — Metamorphous</h2>
+      <p class="meta"><span class="lic">Licence <abbr title="SIL Open Font License 1.1">OFL</abbr></span><em>Kulaté keltské E a&nbsp;M, ostatní písmena klidná a&nbsp;snadno čitelná.</em></p>
+    </div>
+    <div class="stage">
+      <p class="name f-metamorphous">Elinor Marsi</p>
+      <p class="test-line f-metamorphous">Příliš žluťoučký kůň úpěl ďábelské ódy&nbsp;— ŘĚČŮŽ</p>
+    </div>
+  </section>
+
+  <section class="panel" id="moznost-2" aria-labelledby="m2">
+    <div class="panel-head">
+      <h2 id="m2">Možnost&nbsp;2 — Amarante</h2>
+      <p class="meta"><span class="lic">Licence <abbr title="SIL Open Font License 1.1">OFL</abbr></span><em>Štíhlé secesní tvary s&nbsp;elfím nádechem; čte se velmi snadno.</em></p>
+    </div>
+    <div class="stage">
+      <p class="name f-amarante">Elinor Marsi</p>
+      <p class="test-line f-amarante">Příliš žluťoučký kůň úpěl ďábelské ódy&nbsp;— ŘĚČŮŽ</p>
+    </div>
+  </section>
+
+  <section class="panel" id="moznost-3" aria-labelledby="m3">
+    <div class="panel-head">
+      <h2 id="m3">Možnost&nbsp;3 — Eagle Lake</h2>
+      <p class="meta"><span class="lic">Licence <abbr title="SIL Open Font License 1.1">OFL</abbr></span><em>Jako psané perem v&nbsp;iluminovaném rukopisu, s&nbsp;kulatým keltským E.</em></p>
+    </div>
+    <div class="stage">
+      <p class="name f-eagle">Elinor Marsi</p>
+      <p class="test-line f-eagle">Příliš žluťoučký kůň úpěl ďábelské ódy&nbsp;— ŘĚČŮŽ</p>
+    </div>
+  </section>
+
+  <section class="panel" id="moznost-4" aria-labelledby="m4">
+    <div class="panel-head">
+      <h2 id="m4">Možnost&nbsp;4 — Cormorant Unicase</h2>
+      <p class="meta"><span class="lic">Licence <abbr title="SIL Open Font License 1.1">OFL</abbr></span><em>Klasická elegance blízká Cinzelu; písmena v&nbsp;jedné výšce působí elfsky.</em></p>
+    </div>
+    <div class="stage">
+      <p class="name f-unicase">Elinor Marsi</p>
+      <p class="test-line f-unicase">Příliš žluťoučký kůň úpěl ďábelské ódy&nbsp;— ŘĚČŮŽ</p>
+    </div>
+  </section>
+
+  <section class="panel" id="moznost-5" aria-labelledby="m5">
+    <div class="panel-head">
+      <h2 id="m5">Možnost&nbsp;5 — Fondamento</h2>
+      <p class="meta"><span class="lic">Licence <abbr title="SIL Open Font License 1.1">OFL</abbr></span><em>Středověká kaligrafie, střídmější a&nbsp;klidnější než ostatní.</em></p>
+    </div>
+    <div class="stage">
+      <p class="name f-fondamento">Elinor Marsi</p>
+      <p class="test-line f-fondamento">Příliš žluťoučký kůň úpěl ďábelské ódy&nbsp;— ŘĚČŮŽ</p>
+    </div>
+  </section>
+
+  <section class="panel" id="moznost-6" aria-labelledby="m6">
+    <div class="panel-head">
+      <h2 id="m6">Možnost&nbsp;6 — Uncial Antiqua</h2>
+      <p class="meta"><span class="lic">Licence <abbr title="SIL Open Font License 1.1">OFL</abbr></span><em>Nejvíc keltské ze všech, ve stylu unciály ze starých irských rukopisů; jméno se čte dobře, delší text hůř. Malé ř má podobu vysokého unciálního R s&nbsp;háčkem — patří to k&nbsp;písmu, nejde o&nbsp;chybu.</em></p>
+    </div>
+    <div class="stage">
+      <p class="name f-uncial">Elinor Marsi</p>
+      <p class="test-line f-uncial">Příliš žluťoučký kůň úpěl ďábelské ódy&nbsp;— ŘĚČŮŽ</p>
+    </div>
+  </section>
+</main>
+
+<footer>Písma pocházejí z&nbsp;Google Fonts a&nbsp;jsou pod licencí SIL Open Font License 1.1 — lze je zdarma používat i&nbsp;na komerčním webu.</footer>
+</body>
+</html>
